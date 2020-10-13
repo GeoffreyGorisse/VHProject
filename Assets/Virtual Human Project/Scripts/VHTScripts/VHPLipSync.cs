@@ -34,6 +34,8 @@ public class VHPLipSync : MonoBehaviour
 
     [Tooltip("Enable audio processing. Must be disabled when lip synchronization is not active.")]
     public bool audioProcessing = true;
+    [Tooltip("Lip synchronisation smoothing value.")]
+    [Range(1, 100)] public int smoothing = 50;
     [Tooltip("Lip synchronisation mode (realtime: based on mic input; pre-recorded: based on audio source clip).")]
     public LipSyncMode lipSyncMode;
 
@@ -94,6 +96,7 @@ public class VHPLipSync : MonoBehaviour
 
     private void OnEnable()
     {
+        m_OVRLipSyncContext.Smoothing = smoothing;
         m_OVRLipSyncFrame = m_OVRLipSyncContext.GetCurrentPhonemeFrame();
 
         if (m_visemesIntensityValues.Any())
@@ -109,6 +112,9 @@ public class VHPLipSync : MonoBehaviour
         {
             if (!m_OVRLipSyncContext.enabled)
                 m_OVRLipSyncContext.enabled = true;
+
+            if (m_OVRLipSyncContext.Smoothing != smoothing)
+                m_OVRLipSyncContext.Smoothing = smoothing;
 
             // Adding the required components depending on the lip synchronization mode (realtime/pre-computed).
             if (lipSyncMode == LipSyncMode.REALTIME && (!m_OVRLipSyncMicInput || !m_OVRLipSyncMicInput.enabled))
