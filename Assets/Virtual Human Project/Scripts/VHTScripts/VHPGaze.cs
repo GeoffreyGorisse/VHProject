@@ -282,6 +282,8 @@ public class VHPGaze : MonoBehaviour
         m_neutralTarget = new GameObject("Neutral_Target");
         //m_neutralTarget.hideFlags = HideFlags.HideInHierarchy;
         m_neutralTarget.transform.parent = m_gazeSubObjectsParent.transform;
+        m_neutralTarget.transform.position = m_gazeSubObjectsParent.transform.position;
+        m_neutralTarget.transform.rotation = leftEyeBone.transform.rotation;
 
         int eyesForwardAxisSense = 1;
 
@@ -291,19 +293,17 @@ public class VHPGaze : MonoBehaviour
         switch (eyesForwardAxis)
         {
             case Axis.X:
-                m_neutralTarget.transform.localPosition = new Vector3(eyesForwardAxisSense, 0, 0);
+                m_neutralTarget.transform.Translate(eyesForwardAxisSense, 0, 0);
                 break;
             case Axis.Y:
-                m_neutralTarget.transform.localPosition = new Vector3(0, eyesForwardAxisSense, 0);
+                m_neutralTarget.transform.Translate(0, eyesForwardAxisSense, 0);
                 break;
             case Axis.Z:
-                m_neutralTarget.transform.localPosition = new Vector3(0, 0, eyesForwardAxisSense);
+                m_neutralTarget.transform.Translate(0, 0, eyesForwardAxisSense);
                 break;
             default:
                 break;
         }
-
-        m_neutralTarget.transform.position = new Vector3(m_neutralTarget.transform.position.x, m_eyesAveragePosition.y, m_neutralTarget.transform.position.z);
     }
 
     // Function to instiantiate the eyes' target.
