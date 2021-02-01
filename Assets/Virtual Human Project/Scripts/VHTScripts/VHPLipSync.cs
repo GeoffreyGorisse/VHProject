@@ -96,7 +96,6 @@ public class VHPLipSync : MonoBehaviour
 
     private void OnEnable()
     {
-        m_OVRLipSyncContext.Smoothing = smoothing;
         m_OVRLipSyncFrame = m_OVRLipSyncContext.GetCurrentPhonemeFrame();
 
         if (m_visemesIntensityValues.Any())
@@ -137,7 +136,7 @@ public class VHPLipSync : MonoBehaviour
             if (m_OVRLipSyncContext.enabled)
                 m_OVRLipSyncContext.enabled = false;
 
-            if (m_OVRLipSyncMicInput.enabled)
+            if (m_OVRLipSyncMicInput && m_OVRLipSyncMicInput.enabled)
                 m_OVRLipSyncMicInput.enabled = false;
         }
     }

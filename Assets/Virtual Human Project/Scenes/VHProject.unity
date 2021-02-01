@@ -3824,36 +3824,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1642158848}
     m_Modifications:
-    - target: {fileID: 868102029555977594, guid: 79774cb1145d7114eaac7dab4d5498e0,
-        type: 3}
-      propertyPath: gazeBehavior
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 868102029555977594, guid: 79774cb1145d7114eaac7dab4d5498e0,
-        type: 3}
-      propertyPath: enableBlinking
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 868102029555977594, guid: 79774cb1145d7114eaac7dab4d5498e0,
-        type: 3}
-      propertyPath: eyesForwardAxis
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 868102029555977594, guid: 79774cb1145d7114eaac7dab4d5498e0,
-        type: 3}
-      propertyPath: invertEyesAxisSense
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 868102029555977594, guid: 79774cb1145d7114eaac7dab4d5498e0,
-        type: 3}
-      propertyPath: enableGazeMicroVariations
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 972671129023392381, guid: 79774cb1145d7114eaac7dab4d5498e0,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6174088898809296148, guid: 79774cb1145d7114eaac7dab4d5498e0,
         type: 3}
       propertyPath: m_Name
@@ -3914,24 +3884,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8296172669421818829, guid: 79774cb1145d7114eaac7dab4d5498e0,
+    - target: {fileID: 8296172669421818831, guid: 79774cb1145d7114eaac7dab4d5498e0,
         type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8296172669421818829, guid: 79774cb1145d7114eaac7dab4d5498e0,
-        type: 3}
-      propertyPath: m_audioClip
-      value: 
-      objectReference: {fileID: 8300000, guid: 6f571481a078acd4580075c99a16bd6d, type: 3}
-    - target: {fileID: 8296172669421818830, guid: 79774cb1145d7114eaac7dab4d5498e0,
-        type: 3}
-      propertyPath: m_Enabled
+      propertyPath: lipSyncMode
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8296172669421818831, guid: 79774cb1145d7114eaac7dab4d5498e0,
         type: 3}
-      propertyPath: m_Enabled
+      propertyPath: audioProcessing
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -4032,10 +3992,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1642158848}
     m_Modifications:
-    - target: {fileID: 537215805, guid: 06be283a40b459748b0252a2fd091aa3, type: 3}
-      propertyPath: m_audioClip
-      value: 
-      objectReference: {fileID: 8300000, guid: 655e820ad7b92ef41a1fbe54c1c1eec0, type: 3}
     - target: {fileID: 3438865755138137164, guid: 06be283a40b459748b0252a2fd091aa3,
         type: 3}
       propertyPath: m_RootOrder
