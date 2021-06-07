@@ -23,10 +23,11 @@ using UnityEngine;
 public class VHPDemoRotateAnimation : MonoBehaviour
 {
     public float speed = 1f;
+    public Vector3 rotationAxis = new Vector3 (0, 1, 0);
 
     // Simple object rotation animation.
     void Update()
     {
-        transform.Rotate(Vector3.up, speed * Time.deltaTime);
+        transform.Rotate(rotationAxis, speed * Time.deltaTime);
     }
 }
