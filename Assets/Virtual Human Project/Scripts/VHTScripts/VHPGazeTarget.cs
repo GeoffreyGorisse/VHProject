@@ -162,8 +162,13 @@ public class VHPGazeTarget : MonoBehaviour
 
             // Audio sources are stored in a dictionary to avoid getting them each frame. The dictionary key corresponds to the target's position in the list.
             for (int i = 0; i < m_gazeTargets.Count; i++)
-                if (targetAudioSource = m_gazeTargets[i].parent.GetComponent<AudioSource>())
+            {
+                if (m_gazeTargets[i].parent && m_gazeTargets[i].parent.GetComponent<AudioSource>())
+                {
+                    targetAudioSource = m_gazeTargets[i].parent.GetComponent<AudioSource>();
                     audioSources.Add(i, targetAudioSource);
+                }
+            }
 
             m_targetListSize = m_gazeTargets.Count;
         }
