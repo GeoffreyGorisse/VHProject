@@ -192,7 +192,6 @@ public class VHPManager : MonoBehaviour
             Debug.LogWarning("No skinned mesh renderers with blend shapes");
     }
 
-    public static int counter = 0;
     // Coroutine to interpolate the blend shape values to create a progressive transition between their intial and their targeted values.
     private IEnumerator LerpBlendShapeValues(float[] blendShapeValues)
     {
