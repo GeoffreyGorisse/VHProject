@@ -17,6 +17,10 @@ The Virtual Human Project (VHP) offers developers an optimized, scalable, and ea
 - **Dynamic Blend Shape Transition**: Smooth transitions using event-based system for optimized performance.
 - **Demo Scene**: High-quality characters and HD rendering presets for showcasing features.
 
+**Watch the videos**:\
+[Virtual Human Project | Procedural Emotions, Gaze and Lip Sync](https://youtu.be/mstLuzTw790?si=5IOlBIR9mrzxmKuZ)\
+[Virtual Human Project | Lip Sync Update](https://youtu.be/48T4lnm_Kqs?si=9hNPWfa4Gsfyyrou)
+
 ---
 
 ## Blend Shapes Preset Editor
