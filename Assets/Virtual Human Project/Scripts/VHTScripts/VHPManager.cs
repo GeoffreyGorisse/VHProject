@@ -29,45 +29,67 @@ public class VHPManager : MonoBehaviour
 
     public int TotalCharacterBlendShapes { get; private set; } = 0;
 
-    private List<SkinnedMeshRenderer> m_skinnedMeshRenderersWithBlendShapes = new List<SkinnedMeshRenderer>();
-
-    private VHPEmotions m_VHPEmotions;
-    private VHPGaze m_VHPGaze;
-    private VHPLipSync m_VHPLipSync;
-
-    private float[] m_emotionBlendShapeValues;
-    private float[] m_gazeBlendShapeValues;
-    private float[] m_lipBlendShapeValues;
-
-    private float[] m_prioritizedBlendShapeValues;
-    private float[] m_previousPrioritizedBlendShapeValues;
+    private List<SkinnedMeshRenderer> _skinnedMeshRenderersWithBlendShapes = new List<SkinnedMeshRenderer>();
+    private VHPEmotions _VHPEmotions;
+    private VHPGaze _VHPGaze;
+    private VHPLipSync _VHPLipSync;
+    private float[] _emotionBlendShapeValues;
+    private float[] _gazeBlendShapeValues;
+    private float[] _lipBlendShapeValues;
+    private float[] _prioritizedBlendShapeValues;
+    private float[] _previousPrioritizedBlendShapeValues;
 
     private void Awake()
     {
-        // Checking that a blenshapes mapper preset is added to the VHP manager.
         if (!blendShapesMapperPreset)
         {
-            Debug.LogWarning("No blend shapes mapper preset. Please assign a mapper to enable procedural facial animations.");
+            Debug.LogWarning("No blend shapes mapper preset! Please assign a mapper to enable procedural animations.");
             return;
         }
 
-        // Getting the skinned mesh renderers with blend shapes of the character to use procedural facial animations.
-        // Has to be executed in the Awake function as other VHP scripts require the total blend shape number to set their respective blenshapes values lists.
         GetSkinnedMeshRenderersWithBlendShapes(gameObject);
     }
 
     private void OnEnable()
     {
-        GetVHPComponents();
+        if (gameObject.GetComponent<VHPEmotions>())
+        {
+            _VHPEmotions = gameObject.GetComponent<VHPEmotions>();
+            _VHPEmotions.OnEmotionsChange += GetEmotionBlendShapeValues;
+        }
 
-        m_emotionBlendShapeValues = new float[TotalCharacterBlendShapes];
-        m_gazeBlendShapeValues = new float[TotalCharacterBlendShapes];
-        m_lipBlendShapeValues = new float[TotalCharacterBlendShapes];
+        if (gameObject.GetComponent<VHPGaze>())
+        {
+            _VHPGaze = gameObject.GetComponent<VHPGaze>();
+            _VHPGaze.OnGazeChange += GetGazeBlendShapeValues;
+        }
 
-        m_prioritizedBlendShapeValues = new float[TotalCharacterBlendShapes];
-        m_previousPrioritizedBlendShapeValues = new float[TotalCharacterBlendShapes];
+        if (gameObject.GetComponent<VHPLipSync>())
+        {
+            _VHPLipSync = gameObject.GetComponent<VHPLipSync>();
+            _VHPLipSync.OnLipChange += GetLipBlendShapeValues;
+        }
 
-        SubscribeToBlendShapesEvent();
+        _emotionBlendShapeValues = new float[TotalCharacterBlendShapes];
+        _gazeBlendShapeValues = new float[TotalCharacterBlendShapes];
+        _lipBlendShapeValues = new float[TotalCharacterBlendShapes];
+
+        _prioritizedBlendShapeValues = new float[TotalCharacterBlendShapes];
+        _previousPrioritizedBlendShapeValues = new float[TotalCharacterBlendShapes];
+    }
+
+    private void OnDisable()
+    {
+        if (_VHPEmotions)
+            _VHPEmotions.OnEmotionsChange -= GetEmotionBlendShapeValues;
+
+        if (_VHPGaze)
+            _VHPGaze.OnGazeChange -= GetGazeBlendShapeValues;
+
+        if (_VHPLipSync)
+            _VHPLipSync.OnLipChange -= GetLipBlendShapeValues;
+
+        ResetBlendShapeValues();
     }
 
     private void Update()
@@ -75,124 +97,75 @@ public class VHPManager : MonoBehaviour
         PrioritizeBlendShapeValues();
     }
 
-    private void OnDisable()
-    {
-        UnsubscribeToBlendShapesEvent();
-        ResetBlendShapeValues();
-    }
-
-    // Function to detect and add to a list the skinned mesh renderers with blend shapes of the character.
+    // Get the skinned mesh renderers with blend shapes of the character.
     private void GetSkinnedMeshRenderersWithBlendShapes(GameObject character)
     {
-        // Getting all the child objects with a skinned mesh renderer.
         SkinnedMeshRenderer[] skinnedMeshRenderers = character.GetComponentsInChildren<SkinnedMeshRenderer>();
 
-        // Each skinned mesh renderer containing blend shapes is added to the list of skinned mesh renderers with blend shapes.
         foreach (SkinnedMeshRenderer skinnedMeshRenderer in skinnedMeshRenderers)
         {
             if (skinnedMeshRenderer.sharedMesh.blendShapeCount > 0)
             {
-                m_skinnedMeshRenderersWithBlendShapes.Add(skinnedMeshRenderer);
+                _skinnedMeshRenderersWithBlendShapes.Add(skinnedMeshRenderer);
                 TotalCharacterBlendShapes += skinnedMeshRenderer.sharedMesh.blendShapeCount;
             }
         }
 
-        // A warning message is displayed if the character does not contain any skinned mesh renderer with blendshapes.
-        if (!m_skinnedMeshRenderersWithBlendShapes.Any())
-            Debug.LogWarning("No skinned mesh renderer with blend shapes detected on the character.");
+        if (!_skinnedMeshRenderersWithBlendShapes.Any())
+            Debug.LogWarning("No skinned mesh renderer with blend shapes detected on the character!");
     }
 
-    // Function to get all the VHP components.
-    private void GetVHPComponents()
+    private void GetEmotionBlendShapeValues(float[] blendShapeValues)
     {
-        if(gameObject.GetComponent<VHPEmotions>())
-            m_VHPEmotions = gameObject.GetComponent<VHPEmotions>();
-
-        if (gameObject.GetComponent<VHPGaze>())
-            m_VHPGaze = gameObject.GetComponent<VHPGaze>();
-
-        if (gameObject.GetComponent<VHPLipSync>())
-            m_VHPLipSync = gameObject.GetComponent<VHPLipSync>();
+        _emotionBlendShapeValues = blendShapeValues;
     }
 
-    // Function to subscribe to all the events updating the blend shape values.
-    private void SubscribeToBlendShapesEvent()
+    private void GetGazeBlendShapeValues(float[] blendShapeValues)
     {
-        if(m_VHPEmotions)
-            m_VHPEmotions.OnEmotionsChange += CollectEmotionBlendShapeValues;
-
-        if(m_VHPGaze)
-            m_VHPGaze.OnGazeChange += CollectGazeBlendShapeValues;
-
-        if (m_VHPLipSync)
-            m_VHPLipSync.OnLipChange += CollectLipBlendShapeValues;
+        _gazeBlendShapeValues = blendShapeValues;
     }
 
-    // Function to unsubscribe to all the events updating the blendshapes values.
-    private void UnsubscribeToBlendShapesEvent()
+    private void GetLipBlendShapeValues(float[] blendShapeValues)
     {
-        if (m_VHPEmotions)
-            m_VHPEmotions.OnEmotionsChange -= CollectEmotionBlendShapeValues;
-
-        if (m_VHPGaze)
-            m_VHPGaze.OnGazeChange -= CollectGazeBlendShapeValues;
-
-        if (m_VHPLipSync)
-            m_VHPLipSync.OnLipChange -= CollectLipBlendShapeValues;
+        _lipBlendShapeValues = blendShapeValues;
     }
 
-    private void CollectEmotionBlendShapeValues(float[] blendShapeValues)
-    {
-        m_emotionBlendShapeValues = blendShapeValues;
-    }
-
-    private void CollectGazeBlendShapeValues(float[] blendShapeValues)
-    {
-        m_gazeBlendShapeValues = blendShapeValues;
-    }
-
-    private void CollectLipBlendShapeValues(float[] blendShapeValues)
-    {
-        m_lipBlendShapeValues = blendShapeValues;
-    }
-
-    // Function to prioritize the collected blend shape values (emotion, gaze and lip sync blend shapes).
+    // Prioritizes the blend shape values during concurrent activations (e.g., emotions, gaze, and lip sync blend shapes).
     private void PrioritizeBlendShapeValues()
     {
-        if (m_skinnedMeshRenderersWithBlendShapes.Any())
+        if (_skinnedMeshRenderersWithBlendShapes.Any())
         {
-            // Lip sync blend shapes are considered first. Then, emotions blend shapes are applied if they do not override the lip sync ones.
-            // The same process is repeated with the gaze blend shapes. Finally 0 is added if no lip sync/emotion/gaze blend shape is applied.
+            // Prioritizes lip sync blend shapes first. Emotion blend shapes are applied next, ensuring they don't override lip sync values, followed by gaze blend shapes.
             for (int i = 0; i < TotalCharacterBlendShapes; i++)
             {
-                if (m_lipBlendShapeValues[i] != 0)
-                    m_prioritizedBlendShapeValues[i] = m_lipBlendShapeValues[i];
+                if (_lipBlendShapeValues[i] != 0)
+                    _prioritizedBlendShapeValues[i] = _lipBlendShapeValues[i];
 
-                else if (m_emotionBlendShapeValues[i] != 0)
-                    m_prioritizedBlendShapeValues[i] = m_emotionBlendShapeValues[i];
+                else if (_emotionBlendShapeValues[i] != 0)
+                    _prioritizedBlendShapeValues[i] = _emotionBlendShapeValues[i];
 
-                else if (m_gazeBlendShapeValues[i] != 0)
-                    m_prioritizedBlendShapeValues[i] = m_gazeBlendShapeValues[i];
+                else if (_gazeBlendShapeValues[i] != 0)
+                    _prioritizedBlendShapeValues[i] = _gazeBlendShapeValues[i];
 
                 else
-                    m_prioritizedBlendShapeValues[i] = 0;
+                    _prioritizedBlendShapeValues[i] = 0;
             }
 
-            // Starting the coroutine to update the character's blend shapes if the values are different from the previous ones.
-            if (m_prioritizedBlendShapeValues != m_previousPrioritizedBlendShapeValues)
+            // Updates the blend shape values only if they differ from the previous ones.
+            if (_prioritizedBlendShapeValues != _previousPrioritizedBlendShapeValues)
             {
                 StopAllCoroutines();
-                StartCoroutine(LerpBlendShapeValues(m_prioritizedBlendShapeValues));
+                StartCoroutine(LerpBlendShapeValues(_prioritizedBlendShapeValues));
 
-                System.Array.Copy(m_prioritizedBlendShapeValues, m_previousPrioritizedBlendShapeValues, TotalCharacterBlendShapes);
+                System.Array.Copy(_prioritizedBlendShapeValues, _previousPrioritizedBlendShapeValues, TotalCharacterBlendShapes);
             }
         }
 
         else
-            Debug.LogWarning("No skinned mesh renderers with blend shapes");
+            Debug.LogWarning("No skinned mesh renderers with blend shapes!");
     }
 
-    // Coroutine to interpolate the blend shape values to create a progressive transition between their intial and their targeted values.
+    // Interpolates the blend shape values to create a smooth transition between their previous and target values.
     private IEnumerator LerpBlendShapeValues(float[] blendShapeValues)
     {
         List<float> initialBlenshapeValues = new List<float>();
@@ -200,19 +173,17 @@ public class VHPManager : MonoBehaviour
         float lerpDuration = 0.05f;
         float currentBlendShapeValue;
 
-        // Storing the initial blend shape values.
-        foreach (SkinnedMeshRenderer skinnedMeshRenderer in m_skinnedMeshRenderersWithBlendShapes)
+        foreach (SkinnedMeshRenderer skinnedMeshRenderer in _skinnedMeshRenderersWithBlendShapes)
             for (int i = 0; i < skinnedMeshRenderer.sharedMesh.blendShapeCount; i++)
                 initialBlenshapeValues.Add(skinnedMeshRenderer.GetBlendShapeWeight(i));
 
-        // Updating smoothly the blend shape values from their initial values to the desired ones.
         while (elapsedTime < lerpDuration)
         {
             elapsedTime += Time.deltaTime;
 
             int blendShapeIndex = 0;
 
-            foreach (SkinnedMeshRenderer skinnedMeshRenderer in m_skinnedMeshRenderersWithBlendShapes)
+            foreach (SkinnedMeshRenderer skinnedMeshRenderer in _skinnedMeshRenderersWithBlendShapes)
             {
                 for (int i = 0; i < skinnedMeshRenderer.sharedMesh.blendShapeCount; i++)
                 {
@@ -230,15 +201,14 @@ public class VHPManager : MonoBehaviour
         }
     }
 
-    // Function to reset the character blend shape values.
+    // Resets the character's blend shape values to their default state.
     private void ResetBlendShapeValues()
     {
-        if (m_skinnedMeshRenderersWithBlendShapes.Any())
+        if (_skinnedMeshRenderersWithBlendShapes.Any())
         {
             int blendshapeIndex = 0;
 
-            // For each skinned mesh renderer of the character all the blend shapes are updated according to list of values sent to the VHP manager.
-            foreach (SkinnedMeshRenderer skinnedMeshRenderer in m_skinnedMeshRenderersWithBlendShapes)
+            foreach (SkinnedMeshRenderer skinnedMeshRenderer in _skinnedMeshRenderersWithBlendShapes)
             {
                 for (int i = 0; i < skinnedMeshRenderer.sharedMesh.blendShapeCount; i++)
                 {
@@ -250,6 +220,6 @@ public class VHPManager : MonoBehaviour
         }
 
         else
-            Debug.LogWarning("No skinned mesh renderers with blend shapes");
+            Debug.LogWarning("No skinned mesh renderers with blend shapes!");
     }
 }
