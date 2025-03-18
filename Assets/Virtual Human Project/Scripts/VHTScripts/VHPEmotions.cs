@@ -16,9 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see<https://www.gnu.org/licenses/>.
 ********************************************************************/
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(VHPManager))]
@@ -51,12 +49,12 @@ public class VHPEmotions : MonoBehaviour
     private VHPManager m_VHPmanager;
 
     // Lists to copy the max values for each emotion from the blend shapes preset added to the VHP manager.
-    private List<float> m_angerBlendShapeValues = new List<float>();
-    private List<float> m_disgustBlendShapeValues = new List<float>();
-    private List<float> m_fearBlendShapeValues = new List<float>();
-    private List<float> m_happinessBlendShapeValues = new List<float>();
-    private List<float> m_sadnessBlendShapeValues = new List<float>();
-    private List<float> m_surpriseBlendShapeValues = new List<float>();
+    private List<float> _angerBlendShapeValues = new List<float>();
+    private List<float> _disgustBlendShapeValues = new List<float>();
+    private List<float> _fearBlendShapeValues = new List<float>();
+    private List<float> _happinessBlendShapeValues = new List<float>();
+    private List<float> _sadnessBlendShapeValues = new List<float>();
+    private List<float> _surpriseBlendShapeValues = new List<float>();
 
     // Private values to set the emotions' intensity.
     [Range(0, 100)] private float m_anger;
@@ -104,12 +102,12 @@ public class VHPEmotions : MonoBehaviour
             BlendShapesMapper blendShapesMapper = m_VHPmanager.blendShapesMapperPreset;
 
             // Calling the function to copy the values from the blendshapes mapper added to the VHP manager.
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.ANGER), m_angerBlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.DISGUST), m_disgustBlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.FEAR), m_fearBlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.HAPPINESS), m_happinessBlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.SADNESS), m_sadnessBlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.SURPRISE), m_surpriseBlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.ANGER), _angerBlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.DISGUST), _disgustBlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.FEAR), _fearBlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.HAPPINESS), _happinessBlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.SADNESS), _sadnessBlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.SURPRISE), _surpriseBlendShapeValues);
         }
 
         // Displaying a warning message if no blend shapes mapper is added to the VHP manager.
@@ -199,22 +197,22 @@ public class VHPEmotions : MonoBehaviour
         switch (m_currentEmotion)
         {
             case Emotions.ANGER:
-                EmotionsValuesScalling(m_anger, m_angerBlendShapeValues, currentEmotionBlendShapeValues);
+                EmotionsValuesScalling(m_anger, _angerBlendShapeValues, currentEmotionBlendShapeValues);
                 break;
             case Emotions.DISGUST:
-                EmotionsValuesScalling(m_disgust, m_disgustBlendShapeValues, currentEmotionBlendShapeValues);
+                EmotionsValuesScalling(m_disgust, _disgustBlendShapeValues, currentEmotionBlendShapeValues);
                 break;
             case Emotions.FEAR:
-                EmotionsValuesScalling(m_fear, m_fearBlendShapeValues, currentEmotionBlendShapeValues);
+                EmotionsValuesScalling(m_fear, _fearBlendShapeValues, currentEmotionBlendShapeValues);
                 break;
             case Emotions.HAPPINESS:
-                EmotionsValuesScalling(m_happiness, m_happinessBlendShapeValues, currentEmotionBlendShapeValues);
+                EmotionsValuesScalling(m_happiness, _happinessBlendShapeValues, currentEmotionBlendShapeValues);
                 break;
             case Emotions.SADNESS:
-                EmotionsValuesScalling(m_sadness, m_sadnessBlendShapeValues, currentEmotionBlendShapeValues);
+                EmotionsValuesScalling(m_sadness, _sadnessBlendShapeValues, currentEmotionBlendShapeValues);
                 break;
             case Emotions.SURPRISE:
-                EmotionsValuesScalling(m_surprise, m_surpriseBlendShapeValues, currentEmotionBlendShapeValues);
+                EmotionsValuesScalling(m_surprise, _surpriseBlendShapeValues, currentEmotionBlendShapeValues);
                 break;
             case Emotions.NONE:
                 break;

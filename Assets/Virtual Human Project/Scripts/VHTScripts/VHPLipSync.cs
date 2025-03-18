@@ -16,7 +16,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see<https://www.gnu.org/licenses/>.
 ********************************************************************/
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -43,26 +42,26 @@ public class VHPLipSync : MonoBehaviour
     public delegate void OnLipChangeDelegate(float[] currentLipBlendShapeValues);
     public event OnLipChangeDelegate OnLipChange;
 
-    private List<float> m_visemesIntensityValues = new List<float>();
+    private List<float> _visemesIntensityValues = new List<float>();
 
     // Lists to copy the max values for each viseme from the blend shapes preset added to the VHP manager.
-    private List<float> m_viseme_sil_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_PP_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_FF_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_TH_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_DD_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_kk_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_CH_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_SS_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_nn_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_RR_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_aa_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_E_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_I_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_O_BlendShapeValues = new List<float>();
-    private List<float> m_viseme_U_BlendShapeValues = new List<float>();
+    private List<float> _viseme_sil_BlendShapeValues = new List<float>();
+    private List<float> _viseme_PP_BlendShapeValues = new List<float>();
+    private List<float> _viseme_FF_BlendShapeValues = new List<float>();
+    private List<float> _viseme_TH_BlendShapeValues = new List<float>();
+    private List<float> _viseme_DD_BlendShapeValues = new List<float>();
+    private List<float> _viseme_kk_BlendShapeValues = new List<float>();
+    private List<float> _viseme_CH_BlendShapeValues = new List<float>();
+    private List<float> _viseme_SS_BlendShapeValues = new List<float>();
+    private List<float> _viseme_nn_BlendShapeValues = new List<float>();
+    private List<float> _viseme_RR_BlendShapeValues = new List<float>();
+    private List<float> _viseme_aa_BlendShapeValues = new List<float>();
+    private List<float> _viseme_E_BlendShapeValues = new List<float>();
+    private List<float> _viseme_I_BlendShapeValues = new List<float>();
+    private List<float> _viseme_O_BlendShapeValues = new List<float>();
+    private List<float> _viseme_U_BlendShapeValues = new List<float>();
 
-    private List<List<float>> m_visemesBlendShapeValues = new List<List<float>>();
+    private List<List<float>> _visemesBlendShapeValues = new List<List<float>>();
 
     private VHPManager m_VHPmanager;
     private OVRLipSyncContext m_OVRLipSyncContext;
@@ -77,32 +76,32 @@ public class VHPLipSync : MonoBehaviour
 
         LoadBlendShapeValues();
  
-        m_visemesBlendShapeValues.Add(m_viseme_sil_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_PP_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_FF_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_TH_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_DD_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_kk_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_CH_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_SS_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_nn_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_RR_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_aa_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_E_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_I_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_O_BlendShapeValues);
-        m_visemesBlendShapeValues.Add(m_viseme_U_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_sil_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_PP_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_FF_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_TH_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_DD_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_kk_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_CH_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_SS_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_nn_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_RR_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_aa_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_E_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_I_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_O_BlendShapeValues);
+        _visemesBlendShapeValues.Add(_viseme_U_BlendShapeValues);
     }
 
     private void OnEnable()
     {
         m_OVRLipSyncFrame = m_OVRLipSyncContext.GetCurrentPhonemeFrame();
 
-        if (m_visemesIntensityValues.Any())
-            m_visemesIntensityValues.Clear();
+        if (_visemesIntensityValues.Any())
+            _visemesIntensityValues.Clear();
 
         for (int i = 0; i < m_OVRLipSyncFrame.Visemes.Length; i++)
-            m_visemesIntensityValues.Add(m_OVRLipSyncFrame.Visemes[i]);
+            _visemesIntensityValues.Add(m_OVRLipSyncFrame.Visemes[i]);
     }
 
     void Update()
@@ -143,8 +142,8 @@ public class VHPLipSync : MonoBehaviour
 
     private void OnDisable()
     {
-        if (m_visemesIntensityValues.Any())
-            m_visemesIntensityValues.Clear();
+        if (_visemesIntensityValues.Any())
+            _visemesIntensityValues.Clear();
     }
 
     #region Loading blend shapes max values
@@ -158,21 +157,21 @@ public class VHPLipSync : MonoBehaviour
             BlendShapesMapper blendShapesMapper = m_VHPmanager.blendShapesMapperPreset;
 
             // Calling the function to copy the values from the blend shapes mapper added to the VHP manager.
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_sil), m_viseme_sil_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_PP), m_viseme_PP_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_FF), m_viseme_FF_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_TH), m_viseme_TH_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_DD), m_viseme_DD_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_kk), m_viseme_kk_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_CH), m_viseme_CH_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_SS), m_viseme_SS_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_nn), m_viseme_nn_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_RR), m_viseme_RR_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_aa), m_viseme_aa_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_E), m_viseme_E_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_I), m_viseme_I_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_O), m_viseme_O_BlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_U), m_viseme_U_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_sil), _viseme_sil_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_PP), _viseme_PP_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_FF), _viseme_FF_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_TH), _viseme_TH_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_DD), _viseme_DD_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_kk), _viseme_kk_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_CH), _viseme_CH_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_SS), _viseme_SS_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_nn), _viseme_nn_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_RR), _viseme_RR_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_aa), _viseme_aa_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_E), _viseme_E_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_I), _viseme_I_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_O), _viseme_O_BlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_U), _viseme_U_BlendShapeValues);
         }
 
         // Displaying a warning message if no blend shapes mapper is added to the VHP manager.
@@ -208,7 +207,7 @@ public class VHPLipSync : MonoBehaviour
         for (int i = 0; i < m_OVRLipSyncFrame.Visemes.Length; i++)
         {
             // If a new viseme intensity value is detected and is significantly different from the previous one, the function to update the lip blend shape values is called.
-            if (m_OVRLipSyncFrame.Visemes[i] > m_visemesIntensityValues[i] + 0.05f || m_OVRLipSyncFrame.Visemes[i] < m_visemesIntensityValues[i] - 0.05f)
+            if (m_OVRLipSyncFrame.Visemes[i] > _visemesIntensityValues[i] + 0.05f || m_OVRLipSyncFrame.Visemes[i] < _visemesIntensityValues[i] - 0.05f)
             {
                 UpdateLipBlendShapeValues();
                 break;
@@ -232,12 +231,12 @@ public class VHPLipSync : MonoBehaviour
                     if (i == 0)
                         currentLipBlendShapeValues[j] = 0;
 
-                    currentLipBlendShapeValues[j] += (m_OVRLipSyncFrame.Visemes[i] * m_visemesBlendShapeValues[i][j]);
+                    currentLipBlendShapeValues[j] += (m_OVRLipSyncFrame.Visemes[i] * _visemesBlendShapeValues[i][j]);
                     currentLipBlendShapeValues[j] = Mathf.Clamp(currentLipBlendShapeValues[j], 0f, 100f);
                 }
             }
 
-            m_visemesIntensityValues[i] = m_OVRLipSyncFrame.Visemes[i];
+            _visemesIntensityValues[i] = m_OVRLipSyncFrame.Visemes[i];
         }
 
         // If any function subscribed to the lip change event, the associated delegate is invoked with the list of the current lip blend shape values as parameter.

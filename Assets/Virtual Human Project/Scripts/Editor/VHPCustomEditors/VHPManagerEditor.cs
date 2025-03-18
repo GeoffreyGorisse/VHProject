@@ -16,21 +16,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see<https://www.gnu.org/licenses/>.
 ********************************************************************/
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
 [CustomEditor(typeof(VHPManager))]
 public class VHPManagerEditor : Editor
 {
-    private VHPManager myVHPManager;
+    private VHPManager _myVHPManager;
 
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
 
-        myVHPManager = (VHPManager)target;
+        _myVHPManager = (VHPManager)target;
 
         EditorGUILayout.Space(10);
         EditorGUILayout.LabelField("Add procedural controllers:", EditorStyles.boldLabel);
@@ -40,13 +38,12 @@ public class VHPManagerEditor : Editor
         DrawButton("Lip Sync", typeof(VHPLipSync));
     }
 
-    // Function to add scripts to the character based on the button inputs.
     private void DrawButton(string buttonName, System.Type scriptTypeToAdd)
     {
         if (GUILayout.Button(buttonName))
 
-            if (!myVHPManager.gameObject.GetComponent(scriptTypeToAdd))
-                myVHPManager.gameObject.AddComponent(scriptTypeToAdd);
+            if (!_myVHPManager.gameObject.GetComponent(scriptTypeToAdd))
+                _myVHPManager.gameObject.AddComponent(scriptTypeToAdd);
 
         else
             Debug.Log(scriptTypeToAdd.ToString() + " already added to the character.");

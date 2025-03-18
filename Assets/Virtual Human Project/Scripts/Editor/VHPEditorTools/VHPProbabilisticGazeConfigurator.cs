@@ -16,7 +16,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see<https://www.gnu.org/licenses/>.
 ********************************************************************/
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -24,12 +23,12 @@ using UnityEditor;
 
 public class VHPProbabilisticGazeConfigurator : EditorWindow
 {
-    public GameObject targetPrefab;
-    public List<Transform> gazeTargets = new List<Transform>();
+    public GameObject TargetPrefab;
+    public List<Transform> GazeTargets = new List<Transform>();
 
-    private List<GameObject> m_sceneGazeTargets = new List<GameObject>();
-    private string m_targetPrefabFolder = "Assets/Virtual Human Project/Prefabs/";
-    private bool m_deleteTargetSafetyEnabled = false;
+    private List<GameObject> _sceneGazeTargets = new List<GameObject>();
+    private string _targetPrefabFolder = "Assets/Virtual Human Project/Prefabs/";
+    private bool _deleteTargetSafetyEnabled = false;
 
     [MenuItem("Window/Virtual Human Project/Probabilistic Gaze Configurator")]
     public static void ShowWindow()
@@ -39,23 +38,23 @@ public class VHPProbabilisticGazeConfigurator : EditorWindow
 
     private void OnEnable()
     {
-        // Calling the function to load the target prefab from the VHP project folder.
+        // Load the target prefab from the VHP project folder.
         loadTargetPrefab();
-        
-        // Setting the collision matrix to avoid collisions between the gaze targets and other colliders.
-        for (int i = 0; i < 32 ; i++)
-            if(i != targetPrefab.layer)
-                Physics.IgnoreLayerCollision(targetPrefab.layer, i, true);
 
-        // Adding existing targets from the scene in a list.
+        // Sets the collision matrix to prevent collisions between gaze targets and other colliders.
+        for (int i = 0; i < 32 ; i++)
+            if(i != TargetPrefab.layer)
+                Physics.IgnoreLayerCollision(TargetPrefab.layer, i, true);
+
+        // Adds existing targets from the scene to a list.
         if (GameObject.FindGameObjectsWithTag("GazeTarget") != null)
-            m_sceneGazeTargets.AddRange(GameObject.FindGameObjectsWithTag("GazeTarget"));
+            _sceneGazeTargets.AddRange(GameObject.FindGameObjectsWithTag("GazeTarget"));
     }
 
     private void OnDisable()
     {
-        // Clearing the list of existing targets.
-        m_sceneGazeTargets.Clear();
+        // Clears the list of existing targets.
+        _sceneGazeTargets.Clear();
     }
 
     private void OnGUI()
@@ -66,30 +65,28 @@ public class VHPProbabilisticGazeConfigurator : EditorWindow
         GUILayout.Space(5);
 
         // Object field to expose/add the gaze target prefab to be instanciated on the objects of the target list.
-        string targetPrefabTooltip = "Gaze target prefab to be instanciated to allow objects to be taken into account by the probabilistic eye gaze model. The target prefab must be located in the following folder: " + m_targetPrefabFolder;
-        targetPrefab = (GameObject)EditorGUILayout.ObjectField(new GUIContent("Gaze target prefab", targetPrefabTooltip), targetPrefab, typeof(GameObject), true);
+        string targetPrefabTooltip = "Gaze target prefab to be instantiated, allowing objects to be considered by the probabilistic eye gaze model.The target prefab must be located in the following folder: " + _targetPrefabFolder;
+        TargetPrefab = (GameObject)EditorGUILayout.ObjectField(new GUIContent("Gaze target prefab", targetPrefabTooltip), TargetPrefab, typeof(GameObject), true);
 
-        if(targetPrefab)
+        if(TargetPrefab)
         {
-            // Serialazation of the target list.
+            // Serialization of the target list.
             EditorWindow thisEditorWindow = this;
             SerializedObject serializedWindows = new SerializedObject(thisEditorWindow);
-            SerializedProperty gazeTargetsProperty = serializedWindows.FindProperty("gazeTargets");
+            SerializedProperty gazeTargetsProperty = serializedWindows.FindProperty("GazeTargets");
 
-            // Property field to display/edit the target list.
+            // Property field to display and edit the target list.
             string gazeTargetsTooltip = "Gaze targets to be considered by the probabilistic model.";
             EditorGUILayout.PropertyField(gazeTargetsProperty, new GUIContent("Gaze targets", gazeTargetsTooltip), true);
             serializedWindows.ApplyModifiedProperties();
 
-            // Button to add the selected objects in the hierarchy to the target list.
             if (GUILayout.Button("Add selected objects"))
                 AddObjectToTargetList();
 
-            GUI.enabled = gazeTargets.Any() ? true : false;
+            GUI.enabled = GazeTargets.Any() ? true : false;
 
-            // Button to clear the target list.
             if (GUILayout.Button("Clear target list"))
-                gazeTargets.Clear();
+                GazeTargets.Clear();
 
             GUI.enabled = true;
         }
@@ -102,36 +99,34 @@ public class VHPProbabilisticGazeConfigurator : EditorWindow
         GUILayout.Label("Scene targets options", EditorStyles.boldLabel);
         GUILayout.Space(5);
 
-        GUI.enabled = gazeTargets.Any() ? true : false;
+        GUI.enabled = GazeTargets.Any() ? true : false;
 
-        // Button to call the function to instantiate target prefabs as child of each object in the target list.
         if (GUILayout.Button("Add target prefabs"))
                 AddTargetPrefabToObjects();
 
         GUI.enabled = true;
 
-        GUI.enabled = m_sceneGazeTargets.Any() ? true : false;
+        GUI.enabled = _sceneGazeTargets.Any() ? true : false;
 
-        // Button enabling the warning message to remove all the target prefabs from the scene.
         if (GUILayout.Button("Remove all targets"))
-            m_deleteTargetSafetyEnabled = true;
+            _deleteTargetSafetyEnabled = true;
 
         GUI.enabled = true;
 
-        // Displaying the warning message and asking for a confirmation to delete existing targets.
-        if (m_deleteTargetSafetyEnabled)
+        // Displays a warning message asking for confirmation before deleting existing targets.
+        if (_deleteTargetSafetyEnabled)
         {
             EditorGUILayout.HelpBox("All gaze targets will be removed!", MessageType.Warning);
 
             EditorGUILayout.BeginHorizontal();
 
             if (GUILayout.Button("Cancel"))
-                m_deleteTargetSafetyEnabled = false;
+                _deleteTargetSafetyEnabled = false;
 
             if (GUILayout.Button("Continue"))
             {
                 DestroyTargetPrefabs();
-                m_deleteTargetSafetyEnabled = false;
+                _deleteTargetSafetyEnabled = false;
             }
 
             EditorGUILayout.EndHorizontal();
@@ -140,37 +135,37 @@ public class VHPProbabilisticGazeConfigurator : EditorWindow
         #endregion
     }
 
-    // Function to load the target prefab from the VHP project folder.
+    // Loads the target prefab from the VHP project folder.
     private void loadTargetPrefab()
     {
         string targetPrefabFileName = "Gaze_Target.prefab";
-        string targetPrefabPath = m_targetPrefabFolder + targetPrefabFileName;
+        string targetPrefabPath = _targetPrefabFolder + targetPrefabFileName;
 
         if (AssetDatabase.LoadAssetAtPath(targetPrefabPath, typeof(GameObject)))
-            targetPrefab = AssetDatabase.LoadAssetAtPath(targetPrefabPath, typeof(GameObject)) as GameObject;
+            TargetPrefab = AssetDatabase.LoadAssetAtPath(targetPrefabPath, typeof(GameObject)) as GameObject;
 
         else
-            Debug.LogWarning("Cannot load the gaze target prefab to be instanciated at path: " + targetPrefabPath + ". Please assign the target prefab manually.");
+            Debug.LogWarning("Cannot load the gaze target prefab to be instantiated at path: " + targetPrefabPath + ". Please assign the target prefab manually.");
     }
 
-    // Function to instantiate target prefabs as child of each object in the target list.
+    // Instantiates target prefabs as children of each object in the target list.
     private void AddObjectToTargetList()
     {
-        // Getting all the selected transforms.
         Transform[] selectedTransforms = Selection.transforms;
 
-        // Adding the selected transforms to the list if they are not already contained.
+        // Adds the selected transforms to the list if they are not already contained.
         foreach (Transform selectedTransform in selectedTransforms)
-            if(!gazeTargets.Contains(selectedTransform))
-                gazeTargets.Add(selectedTransform);
+            if(!GazeTargets.Contains(selectedTransform))
+                GazeTargets.Add(selectedTransform);
     }
 
-    // Function to instantiate target prefabs as child of each object in the target list.
+    // Instantiates target prefabs as children of each object in the target list.
     private void AddTargetPrefabToObjects()
     {
-        if (gazeTargets.Any())
-            // Adding a target prefab to each object in the list if it doesn't already contain one.
-            foreach (Transform gazeTarget in gazeTargets)
+        if (GazeTargets.Any())
+        {
+            // Adds a target prefab to each object in the list if it doesn't already have one.
+            foreach (Transform gazeTarget in GazeTargets)
             {
                 bool alreadyContainsTarget = false;
 
@@ -181,35 +176,36 @@ public class VHPProbabilisticGazeConfigurator : EditorWindow
                     break;
                 }
 
-                if(!alreadyContainsTarget)
+                if (!alreadyContainsTarget)
                 {
-                    GameObject gazeTargetPrefabInstance = Instantiate(targetPrefab);
+                    GameObject gazeTargetPrefabInstance = Instantiate(TargetPrefab);
                     gazeTargetPrefabInstance.name = "Gaze_Target";
                     gazeTargetPrefabInstance.transform.parent = gazeTarget;
                     gazeTargetPrefabInstance.transform.position = gazeTarget.position;
 
-                    // Matching the size of the collider with the object's bound size.
-                    if(gazeTarget.transform.GetComponent<Renderer>())
+                    // Matches the size of the collider to the object's bounds size.
+                    if (gazeTarget.transform.GetComponent<Renderer>())
                     {
                         Vector3 targetBoundsSize = gazeTarget.transform.GetComponent<Renderer>().bounds.size;
                         float maxSizeValue = Mathf.Max(targetBoundsSize.x, targetBoundsSize.y, targetBoundsSize.z);
                         gazeTargetPrefabInstance.transform.GetComponent<SphereCollider>().radius = maxSizeValue / 2;
                     }
 
-                    m_sceneGazeTargets.Add(gazeTargetPrefabInstance);
+                    _sceneGazeTargets.Add(gazeTargetPrefabInstance);
                 }
             }
+        }
 
         else
-            Debug.LogWarning("Empty gaze targets list, no target will be added.");
+            Debug.LogWarning("Empty gaze targets list. No target will be added!");
     }
 
-    // Function to destroy target prefabs in the scene.
+    // Destroys target prefabs in the scene.
     private void DestroyTargetPrefabs()
     {
-        foreach (GameObject gazeTarget in m_sceneGazeTargets)
+        foreach (GameObject gazeTarget in _sceneGazeTargets)
             DestroyImmediate(gazeTarget);
 
-        m_sceneGazeTargets.Clear();
+        _sceneGazeTargets.Clear();
     }
 }

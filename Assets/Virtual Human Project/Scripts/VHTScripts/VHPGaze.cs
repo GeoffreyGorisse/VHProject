@@ -18,7 +18,6 @@ along with this program. If not, see<https://www.gnu.org/licenses/>.
 ********************************************************************/
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(VHPManager), typeof(Animator))]
@@ -85,9 +84,9 @@ public class VHPGaze : MonoBehaviour
     public Vector3 NeutralTargetPosition { get { return m_neutralTarget.transform.position; } }
 
     // Lists to copy the max values for the each gaze direction from the blend shapes preset added to the VHP manager.
-    private List<float> m_blinkBlendShapeValues = new List<float>();
-    private List<float> m_gazeUpBlendShapeValues = new List<float>();
-    private List<float> m_gazeDownBlendShapeValues = new List<float>();
+    private List<float> _blinkBlendShapeValues = new List<float>();
+    private List<float> _gazeUpBlendShapeValues = new List<float>();
+    private List<float> _gazeDownBlendShapeValues = new List<float>();
 
     // Private values to set the gaze direction intensity.
     [Range(0, 100)] private float m_blink;
@@ -235,9 +234,9 @@ public class VHPGaze : MonoBehaviour
             BlendShapesMapper blendShapesMapper = m_VHPmanager.blendShapesMapperPreset;
 
             // Calling the function to copy the values from the blendshapes mapper added to the VHP manager.
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.BLINK), m_blinkBlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.GAZEUP), m_gazeUpBlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.GAZEDOWN), m_gazeDownBlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.BLINK), _blinkBlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.GAZEUP), _gazeUpBlendShapeValues);
+            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.GAZEDOWN), _gazeDownBlendShapeValues);
         }
 
         // Displaying a warning message if no blendshapes mapper is added to the VHP manager.
@@ -525,16 +524,16 @@ public class VHPGaze : MonoBehaviour
         switch (m_currentGazeBlendShapesBehavior)
         {
             case GazeBlendShapesBehavior.GAZEUP:
-                GazeValuesScalling(m_gazeUp, m_gazeUpBlendShapeValues, currentGazeBlendShapeValues);
+                GazeValuesScalling(m_gazeUp, _gazeUpBlendShapeValues, currentGazeBlendShapeValues);
                 break;
             case GazeBlendShapesBehavior.GAZEDOWN:
-                GazeValuesScalling(m_gazeDown, m_gazeDownBlendShapeValues, currentGazeBlendShapeValues);
+                GazeValuesScalling(m_gazeDown, _gazeDownBlendShapeValues, currentGazeBlendShapeValues);
                 break;
         }
 
         // Blinking blenshapes values are added to the current gaze values list to blend the gaze direction blend shapes and the blinking blend shape values.
         for (int i = 0; i < currentGazeBlendShapeValues.Length; i++)
-            currentGazeBlendShapeValues[i] = Mathf.Clamp(currentGazeBlendShapeValues[i] + (m_blink * m_blinkBlendShapeValues[i] / 100f), 0f, 100f);
+            currentGazeBlendShapeValues[i] = Mathf.Clamp(currentGazeBlendShapeValues[i] + (m_blink * _blinkBlendShapeValues[i] / 100f), 0f, 100f);
 
         // If any function subscribed to the gaze change event, the associated delegate is invoked with the list of the current gaze blendshapes values as parameter.
         OnGazeChange?.Invoke(currentGazeBlendShapeValues);
