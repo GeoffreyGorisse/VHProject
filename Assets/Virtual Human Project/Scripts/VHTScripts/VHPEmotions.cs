@@ -130,7 +130,7 @@ public class VHPEmotions : MonoBehaviour
 
     #region Setting emotions blenshapes intensity
 
-    // Sets the current emotion blend shape values.
+    // Sets the current emotion intensity values.
     private void SetCurrentEmotionIntensityValues()
     {
         float[] currentEmotionsIntensityValues = { _currentAngerIntensity, _currentDisgustIntensity, _currentFearIntensity, _currentHappinessIntensity, _currentSadnessIntensity, _currentSurpriseIntensity };

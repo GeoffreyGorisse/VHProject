@@ -439,7 +439,7 @@ public class VHPGaze : MonoBehaviour
         _isBlinking = false;
     }
 
-    // Sets the current gaze blend shape values.
+    // Sets the current gaze intensity values.
     private void SetCurrentGazeIntensityValues()
     {
         float[] currentGazeIntensityValues = { _currentBlinkIntensity, _currentGazeUpIntensity, _currentGazeDownIntensity };

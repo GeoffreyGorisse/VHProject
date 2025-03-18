@@ -16,6 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see<https://www.gnu.org/licenses/>.
 ********************************************************************/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -29,22 +30,20 @@ public class VHPLipSync : MonoBehaviour
         PRERECORDED
     }
 
-    [Header("Lip sync settings")]
-
-    [Tooltip("Enable audio processing. Must be disabled when lip synchronization is not active.")]
-    public bool audioProcessing = true;
-    [Tooltip("Lip synchronisation smoothing value.")]
-    [Range(1, 100)] public int smoothing = 50;
-    [Tooltip("Lip synchronisation mode (realtime: based on mic input; pre-recorded: based on audio source clip).")]
-    public LipSyncMode lipSyncMode;
-
-    // Delegate and event allowing the VHP manager to subscribe with a function that updates the character's blend shapes with the new emotions values as soon as they get updated.
+    // Delegate and event allowing the VHP manager to subscribe a function that updates the character's blend shapes with new lip values.
     public delegate void OnLipChangeDelegate(float[] currentLipBlendShapeValues);
     public event OnLipChangeDelegate OnLipChange;
 
-    private List<float> _visemesIntensityValues = new List<float>();
+    [Header("Lip sync settings")]
 
-    // Lists to copy the max values for each viseme from the blend shapes preset added to the VHP manager.
+    [SerializeField, Tooltip("Enables audio processing. Should be disabled when lip synchronization is not active.")]
+    private bool _audioProcessing = true;
+    [SerializeField, Range(1, 100), Tooltip("Lip synchronization smoothing value.")]
+    private int _smoothing = 50;
+    [SerializeField, Tooltip("Lip synchronization mode: 'realtime' (based on microphone input) or 'pre-recorded' (based on audio source clip).")]
+    private LipSyncMode _lipSyncMode;
+
+    private List<float> _visemesIntensityValues = new List<float>();
     private List<float> _viseme_sil_BlendShapeValues = new List<float>();
     private List<float> _viseme_PP_BlendShapeValues = new List<float>();
     private List<float> _viseme_FF_BlendShapeValues = new List<float>();
@@ -63,16 +62,15 @@ public class VHPLipSync : MonoBehaviour
 
     private List<List<float>> _visemesBlendShapeValues = new List<List<float>>();
 
-    private VHPManager m_VHPmanager;
-    private OVRLipSyncContext m_OVRLipSyncContext;
-    private OVRLipSync.Frame m_OVRLipSyncFrame;
-    private OVRLipSyncMicInput m_OVRLipSyncMicInput;
+    private VHPManager _VHPmanager;
+    private OVRLipSyncContext _OVRLipSyncContext;
+    private OVRLipSync.Frame _OVRLipSyncFrame;
+    private OVRLipSyncMicInput _OVRLipSyncMicInput;
 
     private void Awake()
     {
-        m_VHPmanager = gameObject.GetComponent<VHPManager>();
-
-        m_OVRLipSyncContext = transform.GetComponent<OVRLipSyncContext>();
+        _VHPmanager = gameObject.GetComponent<VHPManager>();
+        _OVRLipSyncContext = transform.GetComponent<OVRLipSyncContext>();
 
         LoadBlendShapeValues();
  
@@ -95,66 +93,64 @@ public class VHPLipSync : MonoBehaviour
 
     private void OnEnable()
     {
-        m_OVRLipSyncFrame = m_OVRLipSyncContext.GetCurrentPhonemeFrame();
+        _OVRLipSyncFrame = _OVRLipSyncContext.GetCurrentPhonemeFrame();
 
         if (_visemesIntensityValues.Any())
             _visemesIntensityValues.Clear();
 
-        for (int i = 0; i < m_OVRLipSyncFrame.Visemes.Length; i++)
-            _visemesIntensityValues.Add(m_OVRLipSyncFrame.Visemes[i]);
+        for (int i = 0; i < _OVRLipSyncFrame.Visemes.Length; i++)
+            _visemesIntensityValues.Add(_OVRLipSyncFrame.Visemes[i]);
     }
-
-    void Update()
-    {
-        if (audioProcessing)
-        {
-            if (!m_OVRLipSyncContext.enabled)
-                m_OVRLipSyncContext.enabled = true;
-
-            if (m_OVRLipSyncContext.Smoothing != smoothing)
-                m_OVRLipSyncContext.Smoothing = smoothing;
-
-            // Adding the required components depending on the lip synchronization mode (realtime/pre-computed).
-            if (lipSyncMode == LipSyncMode.REALTIME && (!m_OVRLipSyncMicInput || !m_OVRLipSyncMicInput.enabled))
-            {
-                if (!m_OVRLipSyncMicInput)
-                    m_OVRLipSyncMicInput = gameObject.AddComponent<OVRLipSyncMicInput>();
-
-                m_OVRLipSyncMicInput.enabled = true;
-            }
-
-            else if (lipSyncMode == LipSyncMode.PRERECORDED && m_OVRLipSyncMicInput && m_OVRLipSyncMicInput.enabled)
-                m_OVRLipSyncMicInput.enabled = false;
-
-            // Calling the function to detect the visemes' variations.
-            DetectVisemesVariations();
-        }
-
-        else
-        {
-            if (m_OVRLipSyncContext.enabled)
-                m_OVRLipSyncContext.enabled = false;
-
-            if (m_OVRLipSyncMicInput && m_OVRLipSyncMicInput.enabled)
-                m_OVRLipSyncMicInput.enabled = false;
-        }
-    }
-
     private void OnDisable()
     {
         if (_visemesIntensityValues.Any())
             _visemesIntensityValues.Clear();
     }
 
-    #region Loading blend shapes max values
+    void Update()
+    {
+        if (_audioProcessing)
+        {
+            if (!_OVRLipSyncContext.enabled)
+                _OVRLipSyncContext.enabled = true;
+
+            if (_OVRLipSyncContext.Smoothing != _smoothing)
+                _OVRLipSyncContext.Smoothing = _smoothing;
+
+            // Adds the necessary components based on the lip synchronization mode ('realtime' or 'pre-recorded').
+            if (_lipSyncMode == LipSyncMode.REALTIME && (!_OVRLipSyncMicInput || !_OVRLipSyncMicInput.enabled))
+            {
+                if (!_OVRLipSyncMicInput)
+                    _OVRLipSyncMicInput = gameObject.AddComponent<OVRLipSyncMicInput>();
+
+                _OVRLipSyncMicInput.enabled = true;
+            }
+
+            else if (_lipSyncMode == LipSyncMode.PRERECORDED && _OVRLipSyncMicInput && _OVRLipSyncMicInput.enabled)
+                _OVRLipSyncMicInput.enabled = false;
+
+            DetectDifferencesInVisemesIntensityValues();
+        }
+
+        else
+        {
+            if (_OVRLipSyncContext.enabled)
+                _OVRLipSyncContext.enabled = false;
+
+            if (_OVRLipSyncMicInput && _OVRLipSyncMicInput.enabled)
+                _OVRLipSyncMicInput.enabled = false;
+        }
+    }
+
+    #region Blend shape values initilization
 
     // Function to load the visemes max values from the blend shapes mapper added to the VHP manager.
     private void LoadBlendShapeValues()
     {
         // Loading the blend shapes mapper values to be used for lip synchronization if a mapper preset is added to the VHP manager.
-        if (m_VHPmanager.blendShapesMapperPreset)
+        if (_VHPmanager.blendShapesMapperPreset)
         {
-            BlendShapesMapper blendShapesMapper = m_VHPmanager.blendShapesMapperPreset;
+            BlendShapesMapper blendShapesMapper = _VHPmanager.blendShapesMapperPreset;
 
             // Calling the function to copy the values from the blend shapes mapper added to the VHP manager.
             CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.VISEME_sil), _viseme_sil_BlendShapeValues);
@@ -197,17 +193,17 @@ public class VHPLipSync : MonoBehaviour
 
     #endregion
 
-    #region Updating lip blenshapes values
+    #region Setting lip blenshapes intensity
 
-    // Function to detect the visemes' variations.
-    private void DetectVisemesVariations()
+    // Detects differences in the current visemes intensity values.
+    private void DetectDifferencesInVisemesIntensityValues()
     {
-        m_OVRLipSyncFrame = m_OVRLipSyncContext.GetCurrentPhonemeFrame();
+        _OVRLipSyncFrame = _OVRLipSyncContext.GetCurrentPhonemeFrame();
 
-        for (int i = 0; i < m_OVRLipSyncFrame.Visemes.Length; i++)
+        for (int i = 0; i < _OVRLipSyncFrame.Visemes.Length; i++)
         {
-            // If a new viseme intensity value is detected and is significantly different from the previous one, the function to update the lip blend shape values is called.
-            if (m_OVRLipSyncFrame.Visemes[i] > _visemesIntensityValues[i] + 0.05f || m_OVRLipSyncFrame.Visemes[i] < _visemesIntensityValues[i] - 0.05f)
+            // Detects a significant difference in the requested visemes intensities to update the blend shape values.
+            if (_OVRLipSyncFrame.Visemes[i] > _visemesIntensityValues[i] + 0.05f || _OVRLipSyncFrame.Visemes[i] < _visemesIntensityValues[i] - 0.05f)
             {
                 UpdateLipBlendShapeValues();
                 break;
@@ -215,31 +211,31 @@ public class VHPLipSync : MonoBehaviour
         }
     }
 
-    // Function to update the current lip blendshapes values and to trigger the event to allow the VHP manager to update the character's blendshapes.
+    // Updates the current lip blend shape values and triggers the event to allow the VHP manager to update the character's blend shapes with the new lip values.
     private void UpdateLipBlendShapeValues()
     {
-        float[] currentLipBlendShapeValues = new float[m_VHPmanager.TotalCharacterBlendShapes];
+        float[] currentLipBlendShapeValues = new float[_VHPmanager.TotalCharacterBlendShapes];
 
-        // For each viseme, if it's value is superior to 0, each blend shape value from the preset is added to the current lip values list.
-        // As several visemes can be active at the same time, blend shape values must be cumulated.
-        for (int i = 0; i < m_OVRLipSyncFrame.Visemes.Length; i++)
+        // For each viseme, if its value is greater than 0, the corresponding blend shape values from the preset are added to the current lip sync values list.
+        // Since multiple visemes can be active simultaneously, blend shape values are accumulated (empirically tested, but could be improved with more advanced filtering methods).
+        for (int i = 0; i < _OVRLipSyncFrame.Visemes.Length; i++)
         {
-            if(m_OVRLipSyncFrame.Visemes[i] > 0)
+            if(_OVRLipSyncFrame.Visemes[i] > 0)
             {
-                for (int j = 0; j < m_VHPmanager.TotalCharacterBlendShapes; j++)
+                for (int j = 0; j < _VHPmanager.TotalCharacterBlendShapes; j++)
                 {
                     if (i == 0)
                         currentLipBlendShapeValues[j] = 0;
 
-                    currentLipBlendShapeValues[j] += (m_OVRLipSyncFrame.Visemes[i] * _visemesBlendShapeValues[i][j]);
+                    currentLipBlendShapeValues[j] += (_OVRLipSyncFrame.Visemes[i] * _visemesBlendShapeValues[i][j]);
                     currentLipBlendShapeValues[j] = Mathf.Clamp(currentLipBlendShapeValues[j], 0f, 100f);
                 }
             }
 
-            _visemesIntensityValues[i] = m_OVRLipSyncFrame.Visemes[i];
+            _visemesIntensityValues[i] = _OVRLipSyncFrame.Visemes[i];
         }
 
-        // If any function subscribed to the lip change event, the associated delegate is invoked with the list of the current lip blend shape values as parameter.
+        // If any function is subscribed to the lip change event, the associated delegate is invoked with the current lip blend shape values as parameter.
         OnLipChange?.Invoke(currentLipBlendShapeValues);
     }
 

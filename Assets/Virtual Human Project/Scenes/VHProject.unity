@@ -4088,6 +4088,11 @@ PrefabInstance:
       objectReference: {fileID: 471155816}
     - target: {fileID: 868102029555977594, guid: 79774cb1145d7114eaac7dab4d5498e0,
         type: 3}
+      propertyPath: _agentMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 868102029555977594, guid: 79774cb1145d7114eaac7dab4d5498e0,
+        type: 3}
       propertyPath: _leftEyeBone
       value: 
       objectReference: {fileID: 1333734347}
@@ -4111,6 +4116,12 @@ PrefabInstance:
       propertyPath: _drawGazeDirection
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 868102029555977594, guid: 79774cb1145d7114eaac7dab4d5498e0,
+        type: 3}
+      propertyPath: _interestFieldPrefab
+      value: 
+      objectReference: {fileID: 2096622972208523352, guid: 94a0755c84474da40a7b02a3d4c0b2c8,
+        type: 3}
     - target: {fileID: 2442524018532702120, guid: 79774cb1145d7114eaac7dab4d5498e0,
         type: 3}
       propertyPath: m_BlendShapeWeights.Array.data[1]
@@ -4398,6 +4409,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8296172669421818831, guid: 79774cb1145d7114eaac7dab4d5498e0,
         type: 3}
+      propertyPath: _lipSyncMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8296172669421818831, guid: 79774cb1145d7114eaac7dab4d5498e0,
+        type: 3}
       propertyPath: audioProcessing
       value: 1
       objectReference: {fileID: 0}
@@ -4499,6 +4515,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1642158848}
     m_Modifications:
+    - target: {fileID: 537215806, guid: 06be283a40b459748b0252a2fd091aa3, type: 3}
+      propertyPath: _lipSyncMode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3438865755138137164, guid: 06be283a40b459748b0252a2fd091aa3,
         type: 3}
       propertyPath: m_RootOrder
@@ -4566,6 +4586,11 @@ PrefabInstance:
       objectReference: {fileID: 452044142}
     - target: {fileID: 7693268435170000375, guid: 06be283a40b459748b0252a2fd091aa3,
         type: 3}
+      propertyPath: _agentMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7693268435170000375, guid: 06be283a40b459748b0252a2fd091aa3,
+        type: 3}
       propertyPath: _leftEyeBone
       value: 
       objectReference: {fileID: 1064397474}
@@ -4589,6 +4614,12 @@ PrefabInstance:
       propertyPath: _drawGazeDirection
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7693268435170000375, guid: 06be283a40b459748b0252a2fd091aa3,
+        type: 3}
+      propertyPath: _interestFieldPrefab
+      value: 
+      objectReference: {fileID: 2096622972208523352, guid: 94a0755c84474da40a7b02a3d4c0b2c8,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 06be283a40b459748b0252a2fd091aa3, type: 3}
 --- !u!1 &8296172669421818824 stripped
