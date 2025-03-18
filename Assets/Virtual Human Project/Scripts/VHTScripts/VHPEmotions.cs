@@ -33,22 +33,21 @@ public class VHPEmotions : MonoBehaviour
         NONE
     }
 
-    // Public emotions values to allow other script to access them and to expose the sliders in the inspector.
+    // Intensity values for emotions, used to adjust the associated blend shapes.
     [Header("Emotion intensity")]
-    [Range(0, 100)] public float anger = 0f;
-    [Range(0, 100)] public float disgust = 0f;
-    [Range(0, 100)] public float fear = 0f;
-    [Range(0, 100)] public float happiness = 0f;
-    [Range(0, 100)] public float sadness = 0f;
-    [Range(0, 100)] public float surprise = 0f;
-  
-    // Delegate and event allowing the VHP manager to subscribe with a function that updates the character's blend shapes with the new emotions values as soon as they get updated.
+    [Range(0, 100)] public float AngerIntensity = 0f;
+    [Range(0, 100)] public float DisgustIntensity = 0f;
+    [Range(0, 100)] public float FearIntensity = 0f;
+    [Range(0, 100)] public float HappinessIntensity = 0f;
+    [Range(0, 100)] public float SadnessIntensity = 0f;
+    [Range(0, 100)] public float SurpriseIntensity = 0f;
+
+    // Delegate and event allowing the VHP manager to subscribe a function that updates the character's blend shapes with new emotion values.
     public delegate void OnEmotionChangeDelegate(float[] currentEmotionsBlendShapeValues);
     public event OnEmotionChangeDelegate OnEmotionsChange;
 
-    private VHPManager m_VHPmanager;
+    private VHPManager _VHPmanager;
 
-    // Lists to copy the max values for each emotion from the blend shapes preset added to the VHP manager.
     private List<float> _angerBlendShapeValues = new List<float>();
     private List<float> _disgustBlendShapeValues = new List<float>();
     private List<float> _fearBlendShapeValues = new List<float>();
@@ -56,70 +55,66 @@ public class VHPEmotions : MonoBehaviour
     private List<float> _sadnessBlendShapeValues = new List<float>();
     private List<float> _surpriseBlendShapeValues = new List<float>();
 
-    // Private values to set the emotions' intensity.
-    [Range(0, 100)] private float m_anger;
-    [Range(0, 100)] private float m_disgust;
-    [Range(0, 100)] private float m_fear;
-    [Range(0, 100)] private float m_happiness;
-    [Range(0, 100)] private float m_sadness;
-    [Range(0, 100)] private float m_surprise;
+    [Range(0, 100)] private float _currentAngerIntensity;
+    [Range(0, 100)] private float _currentDisgustIntensity;
+    [Range(0, 100)] private float _currentFearIntensity;
+    [Range(0, 100)] private float _currentHappinessIntensity;
+    [Range(0, 100)] private float _currentSadnessIntensity;
+    [Range(0, 100)] private float _currentSurpriseIntensity;
 
-    // Current emotion state of the character.
-    private Emotions m_currentEmotion = Emotions.NONE;
+    private Emotions _currentEmotion = Emotions.NONE;
 
     private void Awake()
     {
-        m_VHPmanager = gameObject.GetComponent<VHPManager>();
+        _VHPmanager = gameObject.GetComponent<VHPManager>();
 
         LoadBlendShapeValues();
     }
 
-    private void Update()
-    {
-        SetCurrentEmotionBlendShapesIntensity();
-    }
-
     private void OnDisable()
     {
-        m_anger = 0f;
-        m_disgust = 0f;
-        m_fear = 0f;
-        m_happiness = 0f;
-        m_sadness = 0f;
-        m_surprise = 0f;
+        _currentAngerIntensity = 0f;
+        _currentDisgustIntensity = 0f;
+        _currentFearIntensity = 0f;
+        _currentHappinessIntensity = 0f;
+        _currentSadnessIntensity = 0f;
+        _currentSurpriseIntensity = 0f;
 
         SyncEmotionsIntensityValues();
     }
 
-    #region Loading blend shape values
+    private void Update()
+    {
+        SetCurrentEmotionIntensityValues();
+    }
 
-    // Function to load the emotions max values from the blend shapes mapper added to the VHP manager.
+    #region Blend shape values initilization
+
+    // Loads the maximum emotion blend shape values from the blend shapes mapper.
     private void LoadBlendShapeValues()
     {
-        // Loading the blend shapes mapper values to be used for procedural emotions if a mapper preset is added to the VHP manager.
-        if (m_VHPmanager.blendShapesMapperPreset)
+        if (_VHPmanager.blendShapesMapperPreset)
         {
-            BlendShapesMapper blendShapesMapper = m_VHPmanager.blendShapesMapperPreset;
+            BlendShapesMapper blendShapesMapper = _VHPmanager.blendShapesMapperPreset;
 
             // Calling the function to copy the values from the blendshapes mapper added to the VHP manager.
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.ANGER), _angerBlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.DISGUST), _disgustBlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.FEAR), _fearBlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.HAPPINESS), _happinessBlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.SADNESS), _sadnessBlendShapeValues);
-            CopyBlendshapesMappersValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.SURPRISE), _surpriseBlendShapeValues);
+            CopyBlendshapesMapperValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.ANGER), _angerBlendShapeValues);
+            CopyBlendshapesMapperValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.DISGUST), _disgustBlendShapeValues);
+            CopyBlendshapesMapperValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.FEAR), _fearBlendShapeValues);
+            CopyBlendshapesMapperValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.HAPPINESS), _happinessBlendShapeValues);
+            CopyBlendshapesMapperValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.SADNESS), _sadnessBlendShapeValues);
+            CopyBlendshapesMapperValues(blendShapesMapper.GetBlenShapeValues(BlendShapesMapper.FacialExpression.SURPRISE), _surpriseBlendShapeValues);
         }
 
-        // Displaying a warning message if no blend shapes mapper is added to the VHP manager.
         else
         {
-            Debug.LogWarning("No blend shapes preset. Procedural emotions won't be initialized");
+            Debug.LogWarning("No blend shapes preset! Procedural emotions will not be initialized.");
             return;
         }
     }
 
-    // Function to copy the values from the blend shapes mapper added to the VHP manager.
-    private void CopyBlendshapesMappersValues(List<float> blendShapesMapperValues, List<float> emotionBlendShapeValues)
+    // Copies the values from the blend shapes mapper.
+    private void CopyBlendshapesMapperValues(List<float> blendShapesMapperValues, List<float> emotionBlendShapeValues)
     {
         for (int i = 0; i < blendShapesMapperValues.Count; i++)
         {
@@ -128,42 +123,39 @@ public class VHPEmotions : MonoBehaviour
 
             else
                 emotionBlendShapeValues.Add(0);
-        }            
+        }
     }
 
     #endregion
 
     #region Setting emotions blenshapes intensity
 
-    // Function that set the current emotions blenshapes intensity of the character if any change is asked in the emotions values. 
-    private void SetCurrentEmotionBlendShapesIntensity()
+    // Sets the current emotion blend shape values.
+    private void SetCurrentEmotionIntensityValues()
     {
-        // Public and private emotions blenshapes intensity values are compared to detect any modification asked thanks to the public variables.
-        float[] currentEmotionsIntensityValues = { m_anger, m_disgust, m_fear, m_happiness, m_sadness, m_surprise };
-        float[] neededEmotionsIntensityValues = { anger, disgust, fear, happiness, sadness, surprise };
+        float[] currentEmotionsIntensityValues = { _currentAngerIntensity, _currentDisgustIntensity, _currentFearIntensity, _currentHappinessIntensity, _currentSadnessIntensity, _currentSurpriseIntensity };
+        float[] requestedEmotionsIntensityValues = { AngerIntensity, DisgustIntensity, FearIntensity, HappinessIntensity, SadnessIntensity, SurpriseIntensity };
 
         for (int i = 0; i < currentEmotionsIntensityValues.Length; i++)
         {
-            // If a new emotion intensity value is detected and is significantly different from the previous one, the current emotion state is updated.
-            if (neededEmotionsIntensityValues[i] > currentEmotionsIntensityValues[i] + 1 || neededEmotionsIntensityValues[i] < currentEmotionsIntensityValues[i] - 1)
+            // Detects a significant difference in the requested emotion intensities to update the blend shape values.
+            if (requestedEmotionsIntensityValues[i] > currentEmotionsIntensityValues[i] + 1 || requestedEmotionsIntensityValues[i] < currentEmotionsIntensityValues[i] - 1)
             {
-                currentEmotionsIntensityValues[i] = neededEmotionsIntensityValues[i];
+                currentEmotionsIntensityValues[i] = requestedEmotionsIntensityValues[i];
+                _currentEmotion = (Emotions)i;
 
-                m_currentEmotion = (Emotions)i;
-
-                // All other intensity values are set to 0 as they are mutually exclusive.
+                // All intensity values are set to 0, as they are mutually exclusive.
                 for (int j = 0; j < currentEmotionsIntensityValues.Length; j++)
-                    if (j != (int)m_currentEmotion)
+                    if (j != (int)_currentEmotion)
                         currentEmotionsIntensityValues[j] = 0;
 
-                m_anger = currentEmotionsIntensityValues[0];
-                m_disgust = currentEmotionsIntensityValues[1];
-                m_fear = currentEmotionsIntensityValues[2];
-                m_happiness = currentEmotionsIntensityValues[3];
-                m_sadness = currentEmotionsIntensityValues[4];
-                m_surprise = currentEmotionsIntensityValues[5];
+                _currentAngerIntensity = currentEmotionsIntensityValues[0];
+                _currentDisgustIntensity = currentEmotionsIntensityValues[1];
+                _currentFearIntensity = currentEmotionsIntensityValues[2];
+                _currentHappinessIntensity = currentEmotionsIntensityValues[3];
+                _currentSadnessIntensity = currentEmotionsIntensityValues[4];
+                _currentSurpriseIntensity = currentEmotionsIntensityValues[5];
 
-                // Then, public and private intensity values are synchronized and the function to update the emotions' blend shape values is called.
                 SyncEmotionsIntensityValues();
                 UpdateEmotionBlendShapeValues();
 
@@ -172,61 +164,54 @@ public class VHPEmotions : MonoBehaviour
         }
     }
 
-    // Function to synchronize the public intensity variables with the private ones. 
+    // Synchronizes the current and requested emotion intensity values.
     private void SyncEmotionsIntensityValues()
     {
-        anger = m_anger;
-        disgust = m_disgust;
-        fear = m_fear;
-        happiness = m_happiness;
-        sadness = m_sadness;
-        surprise = m_surprise;
+        AngerIntensity = _currentAngerIntensity;
+        DisgustIntensity = _currentDisgustIntensity;
+        FearIntensity = _currentFearIntensity;
+        HappinessIntensity = _currentHappinessIntensity;
+        SadnessIntensity = _currentSadnessIntensity;
+        SurpriseIntensity = _currentSurpriseIntensity;
     }
 
-    #endregion
-
-    #region Updating emotions blenshapes values
-
-    // Function to update the current emotion blend shape values and to trigger the event to allow the VHP manager to update the character's blend shapes with these new emotion's values.
+    // Updates the current emotion blend shape values and triggers the event to allow the VHP manager to update the character's blend shapes with the new gaze values.
     private void UpdateEmotionBlendShapeValues()
     {
-        float[] currentEmotionBlendShapeValues = new float[m_VHPmanager.TotalCharacterBlendShapes];
+        float[] currentEmotionBlendShapeValues = new float[_VHPmanager.TotalCharacterBlendShapes];
 
-        // A function to scale the emotion blend shape values based on the current emotion intensity is called.
-        // The final values are added to the current emotion values list.
-        switch (m_currentEmotion)
+        switch (_currentEmotion)
         {
             case Emotions.ANGER:
-                EmotionsValuesScalling(m_anger, _angerBlendShapeValues, currentEmotionBlendShapeValues);
+                for (int i = 0; i < _angerBlendShapeValues.Count; i++)
+                    currentEmotionBlendShapeValues[i] = (Mathf.Clamp((_currentAngerIntensity * _angerBlendShapeValues[i]) / 100, 0f, 100f));
                 break;
             case Emotions.DISGUST:
-                EmotionsValuesScalling(m_disgust, _disgustBlendShapeValues, currentEmotionBlendShapeValues);
+                for (int i = 0; i < _disgustBlendShapeValues.Count; i++)
+                    currentEmotionBlendShapeValues[i] = (Mathf.Clamp((_currentDisgustIntensity * _disgustBlendShapeValues[i]) / 100, 0f, 100f));
                 break;
             case Emotions.FEAR:
-                EmotionsValuesScalling(m_fear, _fearBlendShapeValues, currentEmotionBlendShapeValues);
+                for (int i = 0; i < _fearBlendShapeValues.Count; i++)
+                    currentEmotionBlendShapeValues[i] = (Mathf.Clamp((_currentFearIntensity * _fearBlendShapeValues[i]) / 100, 0f, 100f));
                 break;
             case Emotions.HAPPINESS:
-                EmotionsValuesScalling(m_happiness, _happinessBlendShapeValues, currentEmotionBlendShapeValues);
+                for (int i = 0; i < _happinessBlendShapeValues.Count; i++)
+                    currentEmotionBlendShapeValues[i] = (Mathf.Clamp((_currentHappinessIntensity * _happinessBlendShapeValues[i]) / 100, 0f, 100f));
                 break;
             case Emotions.SADNESS:
-                EmotionsValuesScalling(m_sadness, _sadnessBlendShapeValues, currentEmotionBlendShapeValues);
+                for (int i = 0; i < _sadnessBlendShapeValues.Count; i++)
+                    currentEmotionBlendShapeValues[i] = (Mathf.Clamp((_currentSadnessIntensity * _sadnessBlendShapeValues[i]) / 100, 0f, 100f));
                 break;
             case Emotions.SURPRISE:
-                EmotionsValuesScalling(m_surprise, _surpriseBlendShapeValues, currentEmotionBlendShapeValues);
+                for (int i = 0; i < _surpriseBlendShapeValues.Count; i++)
+                    currentEmotionBlendShapeValues[i] = (Mathf.Clamp((_currentSurpriseIntensity * _surpriseBlendShapeValues[i]) / 100, 0f, 100f));
                 break;
             case Emotions.NONE:
                 break;
         }
 
-        // If any function subscribed to the emotions change event, the associated delegate is invoked with the list of the current emotion blend shape values as parameter.
+        // If any function is subscribed to the emotions change event, the associated delegate is invoked with the current emotion blend shape values as parameter.
         OnEmotionsChange?.Invoke(currentEmotionBlendShapeValues);
-    }
-
-    // Function to scale the emotion blend shape values depending on the emotion blenshapes intensity and to add them to the current emotion blend shape values list.
-    private void EmotionsValuesScalling(float currentEmotionIntensityValue, List<float> emotionMaxBlendShapeValues, float[] currentEmotionBlendShapeValues)
-    {
-        for (int i = 0; i < emotionMaxBlendShapeValues.Count; i++)
-            currentEmotionBlendShapeValues[i] = (Mathf.Clamp((currentEmotionIntensityValue * emotionMaxBlendShapeValues[i]) / 100, 0f, 100f));
     }
 
     #endregion

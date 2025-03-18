@@ -51,7 +51,7 @@ public class VHPGaze : MonoBehaviour
     public Vector3 EyesAveragePosition { get { return _eyesAveragePosition; } }
     public Vector3 NeutralTargetPosition { get { return _neutralTarget.transform.position; } }
 
-    // Gaze intensity values to set the associated blend shapes.
+    // Intensity values for gaze and blinking, used to adjust the associated blend shapes.
     [HideInInspector, Range(0, 100)] public float BlinkIntensity = 0f;
     [HideInInspector, Range(0, 100)] public float GazeUpIntensity = 0f;
     [HideInInspector, Range(0, 100)] public float GazeDownIntensity = 0f;
@@ -81,6 +81,8 @@ public class VHPGaze : MonoBehaviour
     [SerializeField, Tooltip("Enable random micro saccades to the gaze direction.")] public bool _enableGazeMicroSaccades = true;
     [SerializeField] private bool _enableBlinking = true;
 
+    private VHPManager _VHPmanager;
+
     private List<float> _blinkBlendShapeValues = new List<float>();
     private List<float> _gazeUpBlendShapeValues = new List<float>();
     private List<float> _gazeDownBlendShapeValues = new List<float>();
@@ -89,7 +91,6 @@ public class VHPGaze : MonoBehaviour
     [Range(0, 100)] private float _currentGazeUpIntensity;
     [Range(0, 100)] private float _currentGazeDownIntensity;
 
-    private VHPManager _VHPmanager;
     private bool _enableEyesProceduralAnimation = false;
     private Vector3 _eyesAveragePosition;
     private GameObject _gazeSubObjectsParent;
