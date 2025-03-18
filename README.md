@@ -104,5 +104,5 @@ The Virtual Human Project (VHP) offers developers an optimized, scalable, and ea
 
 ## License
 
-This project is licensed under the **GNU LGPLv3**. For commercial projects requiring a proprietary license or specific usage conditions, **dual licensing** is available.  
+This project is licensed under the **GNU GPLv3**. For commercial projects requiring a proprietary license or specific usage conditions, **dual licensing** is available.  
 For inquiries regarding a commercial license, please contact **Geoffrey Gorisse, PhD** at [geoffrey.gorisse@gmail.com](mailto:geoffrey.gorisse@gmail.com).  
