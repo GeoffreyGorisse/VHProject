@@ -25,7 +25,6 @@ public class VHPBlendShapesMapperEditor : EditorWindow
 {
     public BlendShapesMapper BlendShapesMapper;
     public BlendShapesMapper.FacialExpression FacialPoseToEdit = BlendShapesMapper.FacialExpression.DEFAULT;
-
     public GameObject Character;
     public List<SkinnedMeshRenderer> SkinnedMeshRenderersWithBlendShapes = new List<SkinnedMeshRenderer>();
 
@@ -154,7 +153,7 @@ public class VHPBlendShapesMapperEditor : EditorWindow
             EditorGUILayout.EndHorizontal();
         }
 
-        if (GUILayout.Button("Reset character blend shapes"))
+        if (GUILayout.Button("Reset blend shape values"))
             ResetBlendShapeValues();
 
         GUI.enabled = true;

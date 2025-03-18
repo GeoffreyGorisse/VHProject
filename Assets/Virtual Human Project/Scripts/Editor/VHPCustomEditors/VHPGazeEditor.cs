@@ -23,14 +23,13 @@ using UnityEditor;
 public class VHPGazeEditor : Editor
 {
     private VHPGaze _myVHTGaze;
-
     private SerializedProperty _agentMode;
     private SerializedProperty _interestFieldPrefab;
 
     private void OnEnable()
     {
-        _interestFieldPrefab = serializedObject.FindProperty("interestFieldPrefab");
-        _agentMode = serializedObject.FindProperty("agentMode");
+        _interestFieldPrefab = serializedObject.FindProperty("_interestFieldPrefab");
+        _agentMode = serializedObject.FindProperty("_agentMode");
     }
 
     public override void OnInspectorGUI()
@@ -41,7 +40,7 @@ public class VHPGazeEditor : Editor
 
         base.OnInspectorGUI();
 
-        if (_myVHTGaze.gazeBehavior == VHPGaze.GazeBehavior.PROBABILISTIC) 
+        if (_myVHTGaze.GazeBehaviorMode == VHPGaze.GazeBehavior.PROBABILISTIC) 
         {
             // Displays an object field for the gaze interest field prefab.
             string interestFieldPrefabTooltip = "Add the Default Gaze Interest Field Prefab(Assets/Virtual Human Toolkit/Prefabs/).";

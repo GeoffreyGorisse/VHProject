@@ -117,7 +117,6 @@ public class VHPProbabilisticGazeConfigurator : EditorWindow
         if (_deleteTargetSafetyEnabled)
         {
             EditorGUILayout.HelpBox("All gaze targets will be removed!", MessageType.Warning);
-
             EditorGUILayout.BeginHorizontal();
 
             if (GUILayout.Button("Cancel"))

@@ -26,48 +26,41 @@ public class VHPGazeTarget : MonoBehaviour
     public VHPGaze VHPGaze { get; set; }
     public VHPGazeInterestField VHPGazeInterestField { get; set; }
 
-    private VHPGaze.GazeBehavior m_currentGazeBehavior = VHPGaze.GazeBehavior.NONE;
-
-    private Transform m_initialParentTransform;
-
-    private List<Transform> m_gazeTargets = new List<Transform>();
-    private int m_targetListSize = 0;
-    private int m_targetIndex = 0;
-
-    private List<Vector4> m_targetsPonderedPositions = new List<Vector4>();
-    private int m_targetPositionsListSize = 0;
-    private List<Vector4> m_targetsPonderedPositionsCopy = new List<Vector4>();
-    private float m_targetPositionsCopyUpdateWaitingDuration = 0f;
-
-    private Dictionary<int, AudioSource> audioSources = new Dictionary<int, AudioSource>();
-
-    private float m_targetSwitchingWaitingDuration = 0f;
-    private bool m_transitionInitialized = false;
-    private Vector3 m_finalTargetPosition;
-    private float m_transitionDuration;
-    private float m_xVelocity = 0;
-    private float m_yVelocity = 0;
-    private float m_zVelocity = 0;
-
-    private Vector3 m_scriptedTargetPosition = Vector3.zero;
-
-    // Property calling the function to set the target position when its value is changed in scripted gaze behavior.
     public Vector3 ScriptedTargetPosition
     {
-        get { return m_scriptedTargetPosition; }
+        get { return _scriptedTargetPosition; }
 
-        set 
-        { 
-            m_scriptedTargetPosition = value; 
+        set
+        {
+            _scriptedTargetPosition = value;
 
-            if(m_currentGazeBehavior == VHPGaze.GazeBehavior.SCRIPTED)
-                ScriptedGazeBehavior(m_scriptedTargetPosition); 
+            if (_currentGazeBehavior == VHPGaze.GazeBehavior.SCRIPTED)
+                ScriptedGazeBehavior(_scriptedTargetPosition);
         }
     }
 
+    private VHPGaze.GazeBehavior _currentGazeBehavior = VHPGaze.GazeBehavior.NONE;
+    private Vector3 _scriptedTargetPosition = Vector3.zero;
+    private Transform _initialParentTransform;
+    private List<Transform> _gazeTargets = new List<Transform>();
+    private int _targetListSize = 0;
+    private int _targetIndex = 0;
+    private List<Vector4> _currentTargetsPonderedPositions = new List<Vector4>();
+    private int _targetPositionsListSize = 0;
+    private List<Vector4> _previousTargetsPonderedPositions = new List<Vector4>();
+    private float _targetsPositionsUpdateDeltaTime = 0f;
+    private Dictionary<int, AudioSource> _audioSources = new Dictionary<int, AudioSource>();
+    private float _targetSwitchingWaitingDuration = 0f;
+    private bool _transitionInitialized = false;
+    private Vector3 _finalTargetPosition;
+    private float _transitionDuration;
+    private float _xVelocity = 0;
+    private float _yVelocity = 0;
+    private float _zVelocity = 0;
+
     private void Start()
     {
-        m_initialParentTransform = transform.parent;
+        _initialParentTransform = transform.parent;
     }
 
     private void OnDisable()
@@ -77,66 +70,66 @@ public class VHPGazeTarget : MonoBehaviour
 
     private void Update()
     {
-        // Setting the gaze behavior and initializing the corresponding functions. Only updated when the behavior is changed.
-        if (m_currentGazeBehavior != VHPGaze.gazeBehavior)
+        // Sets the gaze behavior and initializes the corresponding functions. Updates only when the behavior changes.
+        if (_currentGazeBehavior != VHPGaze.GazeBehaviorMode)
         {
             StopAllCoroutines();
 
-            switch (VHPGaze.gazeBehavior)
+            switch (VHPGaze.GazeBehaviorMode)
             {
                 case VHPGaze.GazeBehavior.PROBABILISTIC:
                     transform.parent = VHPGaze.transform;
                     StartCoroutine(ProbabilisticGazeBehavior());
                     break;
                 case VHPGaze.GazeBehavior.RANDOM:
-                    transform.parent = m_initialParentTransform;
+                    transform.parent = _initialParentTransform;
                     StartCoroutine(RandomGazeBehavior(3f));
                     break;
                 case VHPGaze.GazeBehavior.STATIC:
-                    transform.parent = m_initialParentTransform;
+                    transform.parent = _initialParentTransform;
                     StaticGazeBehavior();
                     break;
                 case VHPGaze.GazeBehavior.SCRIPTED:
-                    transform.parent = m_initialParentTransform;
+                    transform.parent = _initialParentTransform;
                     ScriptedGazeBehavior(VHPGaze.NeutralTargetPosition);
                     break;
                 case VHPGaze.GazeBehavior.NONE:
-                    Debug.LogWarning("No gaze behavior selected in the gaze settings.");
+                    Debug.LogWarning("No gaze behavior selected in the gaze settings!");
                     break;
                 default:
                     break;
             }
 
-            m_currentGazeBehavior = VHPGaze.gazeBehavior;
+            _currentGazeBehavior = VHPGaze.GazeBehaviorMode;
         }
     }
 
     #region Probabilistic gaze behavior
 
-    // Recursive coroutine to handle the probabilistic gaze behavior.
+    // Recursively handles the probabilistic gaze behavior.
     private IEnumerator ProbabilisticGazeBehavior()
     {
-        Vector3 aimedTargetPosition;
+        Vector3 aimedTargetPosition = Vector3.zero;
 
-        // Calling the target selection and the targets ponderation fuction when the interest field contains any target.
+        // Calls the target selection and target weighting functions when the interest field contains any targets.
         if (VHPGazeInterestField && VHPGazeInterestField.GazeTargets.Any())
         {
             if (transform.parent != VHPGaze.transform)
                 transform.parent = VHPGaze.transform;
 
-            aimedTargetPosition = TargetSelection(TargetsPonderation());
+            aimedTargetPosition = SelectTargetProbabilistically(PonderateTargets());
         }
 
-        // Setting a default gaze target position when the interest field does not contain any target. 
+        // Sets a default gaze target position when the interest field contains no targets.
         else
         {
-            if (transform.parent != m_initialParentTransform)
-                transform.parent = m_initialParentTransform;
+            if (transform.parent != _initialParentTransform)
+                transform.parent = _initialParentTransform;
 
             aimedTargetPosition = VHPGaze.NeutralTargetPosition;
         }
 
-        // Target position has to be override each frame when if parent gameObjects are moving (head rotation, walk, etc.) to stay at the required location.
+        // Updates the target location if the parent GameObject is moving (head rotation, walking, etc.) to maintain the required position.
         if (transform.position != aimedTargetPosition)
             SmoothTargetTransition(aimedTargetPosition);
 
@@ -145,74 +138,71 @@ public class VHPGazeTarget : MonoBehaviour
         StartCoroutine(ProbabilisticGazeBehavior());
     }
 
-    // Function returning a pondered list of the targets contained in the interest field of the character.
-    private List<Vector4> TargetsPonderation()
+    // Ponders the list of targets in the interest field.
+    private List<Vector4> PonderateTargets()
     {
-        // Clearing the list of positions to update the moving targets' position every frame.
-        m_targetsPonderedPositions.Clear();
+        // Clears the list of positions to update the moving targets' positions each frame.
+        _currentTargetsPonderedPositions.Clear();
 
-        // When a target enter or exit the interest field, a copy of the list of targets is stored.
-        if (m_targetListSize != VHPGazeInterestField.GazeTargets.Count)
+        // Updates the target list when objects enter or exit the interest field.
+        if (_targetListSize != VHPGazeInterestField.GazeTargets.Count)
         {
-            m_gazeTargets = new List<Transform>(VHPGazeInterestField.GazeTargets);
-            m_targetsPonderedPositionsCopy.Clear();
+            _gazeTargets = new List<Transform>(VHPGazeInterestField.GazeTargets);
+            _previousTargetsPonderedPositions.Clear();
 
-            audioSources.Clear();
+            _audioSources.Clear();
             AudioSource targetAudioSource;
 
-            // Audio sources are stored in a dictionary to avoid getting them each frame. The dictionary key corresponds to the target's position in the list.
-            for (int i = 0; i < m_gazeTargets.Count; i++)
+            // Stores audio sources in a dictionary to avoid retrieving them each frame. The dictionary key corresponds to the target's position in the list.
+            for (int i = 0; i < _gazeTargets.Count; i++)
             {
-                if (m_gazeTargets[i].parent && m_gazeTargets[i].parent.GetComponent<AudioSource>())
+                if (_gazeTargets[i].parent && _gazeTargets[i].parent.GetComponent<AudioSource>())
                 {
-                    targetAudioSource = m_gazeTargets[i].parent.GetComponent<AudioSource>();
-                    audioSources.Add(i, targetAudioSource);
+                    targetAudioSource = _gazeTargets[i].parent.GetComponent<AudioSource>();
+                    _audioSources.Add(i, targetAudioSource);
                 }
             }
 
-            m_targetListSize = m_gazeTargets.Count;
+            _targetListSize = _gazeTargets.Count;
         }
 
-        // Applying ponderations based on distances, movements and sounds for each target in the interest field.
-        for (int i = 0; i < m_gazeTargets.Count; i++)
+        // Applies ponderations based on distance, movement, and sound for each target in the interest field.
+        for (int i = 0; i < _gazeTargets.Count; i++)
         {
-            Vector3 targetPosition = m_gazeTargets[i].position;
+            Vector3 targetPosition = _gazeTargets[i].position;
             float targetPonderedValue = 0f;
 
-            // Calling a function to apply a distance based ponderation.
             targetPonderedValue = DistancePonderation(targetPosition, targetPonderedValue);
 
-            // Calling a function to apply a sound based ponderation if the dictionary contains at least an active audio source from the targets.
-            if (audioSources.Any())
+            if (_audioSources.Any())
             {
                 AudioSource targetAudioSource;
 
-                if (audioSources.TryGetValue(i, out targetAudioSource))
+                if (_audioSources.TryGetValue(i, out targetAudioSource))
                     targetPonderedValue = SoundPonderation(targetPosition, targetAudioSource, targetPonderedValue);
             }
 
-            // Calling a function to apply a movement based ponderation.
-            if (m_targetsPonderedPositionsCopy.Any())
-                targetPonderedValue = MovementPonderation(targetPosition, m_targetsPonderedPositionsCopy[i], targetPonderedValue);
+            if (_previousTargetsPonderedPositions.Any())
+                targetPonderedValue = MovementPonderation(targetPosition, _previousTargetsPonderedPositions[i], targetPonderedValue);
 
-            m_targetsPonderedPositions.Add(new Vector4(targetPosition.x, targetPosition.y, targetPosition.z, targetPonderedValue));
+            _currentTargetsPonderedPositions.Add(new Vector4(targetPosition.x, targetPosition.y, targetPosition.z, targetPonderedValue));
         }
 
         // Updating the targets' positions list copy to enable position comparisions to detect any movements.
-        if(m_targetPositionsCopyUpdateWaitingDuration >= 0.25f)
+        if(_targetsPositionsUpdateDeltaTime >= 0.25f)
         {
-            m_targetsPonderedPositionsCopy = new List<Vector4>(m_targetsPonderedPositions);
-            m_targetPositionsCopyUpdateWaitingDuration = 0;
+            _previousTargetsPonderedPositions = new List<Vector4>(_currentTargetsPonderedPositions);
+            _targetsPositionsUpdateDeltaTime = 0;
         }
 
-        m_targetPositionsCopyUpdateWaitingDuration += Time.deltaTime;
+        _targetsPositionsUpdateDeltaTime += Time.deltaTime;
 
-        return m_targetsPonderedPositions;
+        return _currentTargetsPonderedPositions;
     }
 
     #region Target ponderators
 
-    // Function returning a distance based pondered value.
+    // Returns a distance based pondered value.
     private float DistancePonderation(Vector3 targetPosition, float targetPonderedValue)
     {
         float targetDistance = Vector3.Distance(VHPGaze.EyesAveragePosition, targetPosition);
@@ -221,7 +211,7 @@ public class VHPGazeTarget : MonoBehaviour
         return targetPonderedValue;
     }
 
-    // Function returing a sound based pondered value considering the audio source distance and volume.
+    // Returns a sound based pondered value considering the audio source distance and volume.
     private float SoundPonderation(Vector3 targetPosition, AudioSource audioSource, float targetPonderedValue)
     {
         if (audioSource.isPlaying)
@@ -234,7 +224,7 @@ public class VHPGazeTarget : MonoBehaviour
         return targetPonderedValue;
     }
 
-    // Function returing a movement based pondered value considering the object velocity.
+    // Returns a movement based pondered value considering the object velocity.
     private float MovementPonderation(Vector3 targetPosition, Vector3 targetPreviousPosition, float targetPonderedValue)
     {
         if (targetPosition != targetPreviousPosition)
@@ -249,17 +239,17 @@ public class VHPGazeTarget : MonoBehaviour
 
     #endregion
 
-    // Function probabilistically returning a target position based on the list of pondered potential targets.
-    private Vector3 TargetSelection(List<Vector4> orderedTargetPositions)
+    // Returns a probabilistically selected target position based on the list of pondered potential targets.
+    private Vector3 SelectTargetProbabilistically(List<Vector4> orderedTargetPositions)
     {
-        // Changing of target at a random frequency or if a target is added/removed from the list.
-        if (m_targetSwitchingWaitingDuration >= Random.Range(2f, 4f) || m_targetPositionsListSize != orderedTargetPositions.Count)
+        // Changes the target at a random frequency or when a target is added/removed from the list.
+        if (_targetSwitchingWaitingDuration >= Random.Range(2f, 4f) || _targetPositionsListSize != orderedTargetPositions.Count)
         {
-            m_targetPositionsListSize = orderedTargetPositions.Count;
+            _targetPositionsListSize = orderedTargetPositions.Count;
 
             float totalTargetsWeight = 0;
 
-            // Calculating the total ponderation weight.
+            // Calculates the total ponderation weight.
             for (int i = 0; i < orderedTargetPositions.Count; i++)
             {
                 float targetWeight = orderedTargetPositions[i].w;
@@ -270,67 +260,66 @@ public class VHPGazeTarget : MonoBehaviour
             float targetCumulatedProb = targetProb;
             List<float> targetsProbs = new List<float>();
 
-            // Calculating the percentage of selection probability for each target based on its pondered score.
+            // Calculates the selection probability percentage for each target based on its pondered score.
             for (int i = 0; i < orderedTargetPositions.Count; i++)
             {
                 targetProb = orderedTargetPositions[i].w * 100 / totalTargetsWeight;
-                // Adding the target selection probability to a cumulated score to create value ranges between 1 and 100.
-                // Each target selection probability now occupies a range equal to its selection probability between 0 and 100 without overlapping other targets' ranges.
+                // Adds the target selection probability to a cumulative score, creating value ranges between 1 and 100.
+                // Each target's selection probability occupies a range between 0 and 100, without overlapping the ranges of other targets.
                 targetCumulatedProb += targetProb;
                 targetsProbs.Add(targetCumulatedProb);
             }
 
-            // Generating a random number between 1 and 100.
+            // Generates a random number between 1 and 100.
             int randomProbScore = Random.Range(1, 101);
 
-            // Checking in which target's range the random value is contained and updating the index to change the gaze target location.
+            // Checks which target's range contains the random value and updates the index to change the gaze target location.
             for (int i = 0; i < targetsProbs.Count(); i++)
             {
                 if (targetsProbs[i] >= randomProbScore)
                 {
-                    m_targetIndex = i;
+                    _targetIndex = i;
                     break;
                 }
             }
 
-            m_targetSwitchingWaitingDuration = 0;
+            _targetSwitchingWaitingDuration = 0;
         }
 
         else
-            m_targetSwitchingWaitingDuration += Time.deltaTime;
+            _targetSwitchingWaitingDuration += Time.deltaTime;
 
-        return orderedTargetPositions[m_targetIndex];
+        return orderedTargetPositions[_targetIndex];
     }
 
-    // Function to smooth the transition between the target positions to allow for realistic avatar IK animation.
+    // Smooths the transition between target positions to enable realistic IK based animation.
     private void SmoothTargetTransition(Vector3 aimedTargetPosition)
     {
-        // Setting the variables to initialize the smooth transition.
-        if (!m_transitionInitialized)
+        if (!_transitionInitialized)
         {
-            m_finalTargetPosition = aimedTargetPosition;
-            // Clamped transition duration proportional to the distance between the initial and the final positions.
-            m_transitionDuration = Mathf.Clamp(Vector3.Distance(transform.position, m_finalTargetPosition) * Random.Range(0.2f, 0.3f), 0.05f, 1f);
-            m_transitionInitialized = true;
+            _finalTargetPosition = aimedTargetPosition;
+            // Clamps the transition duration based on the distance between the initial and final positions.
+            _transitionDuration = Mathf.Clamp(Vector3.Distance(transform.position, _finalTargetPosition) * Random.Range(0.2f, 0.3f), 0.05f, 1f);
+            _transitionInitialized = true;
         }
 
-        // Smooth non linear transition toward the target position.
-        float xPosition = Mathf.SmoothDamp(transform.position.x, m_finalTargetPosition.x, ref m_xVelocity, m_transitionDuration);
-        float yPosition = Mathf.SmoothDamp(transform.position.y, m_finalTargetPosition.y, ref m_yVelocity, m_transitionDuration);
-        float zPosition = Mathf.SmoothDamp(transform.position.z, m_finalTargetPosition.z, ref m_zVelocity, m_transitionDuration);
+        // Smooth, non-linear transition towards the target position.
+        float xPosition = Mathf.SmoothDamp(transform.position.x, _finalTargetPosition.x, ref _xVelocity, _transitionDuration);
+        float yPosition = Mathf.SmoothDamp(transform.position.y, _finalTargetPosition.y, ref _yVelocity, _transitionDuration);
+        float zPosition = Mathf.SmoothDamp(transform.position.z, _finalTargetPosition.z, ref _zVelocity, _transitionDuration);
 
         transform.position = new Vector3(xPosition, yPosition, zPosition);
 
-        // Allowing variables reinitialization if the transition is over or if the target changed during the transition process.
-        if (transform.position == aimedTargetPosition || aimedTargetPosition != m_finalTargetPosition)
-            m_transitionInitialized = false;
+        // Allows variable reinitialization if the transition is complete or if the target changes during the transition.
+        if (transform.position == aimedTargetPosition || aimedTargetPosition != _finalTargetPosition)
+            _transitionInitialized = false;
     }
 
     #endregion
 
     #region Randome gaze behavior
 
-    // Recursive coroutine to handle the random gaze behavior.
+    // Recursively handles the random gaze behavior.
     private IEnumerator RandomGazeBehavior(float updateDelay)
     {
         float randomVariation = Random.Range(-0.2f, 0.2f);
@@ -347,7 +336,7 @@ public class VHPGazeTarget : MonoBehaviour
 
     #region Static gaze behavior
 
-    // Function to set the static gaze behavior target position.
+    // Sets the static gaze behavior target position.
     private void StaticGazeBehavior()
     {
         transform.position = VHPGaze.NeutralTargetPosition;
@@ -357,7 +346,7 @@ public class VHPGazeTarget : MonoBehaviour
 
     #region Scripted gaze behavior
 
-    // Function to set the scripted gaze behavior target position.
+    // Sets the scripted gaze behavior target position.
     private void ScriptedGazeBehavior(Vector3 targetPosition)
     {
         transform.position = targetPosition;
