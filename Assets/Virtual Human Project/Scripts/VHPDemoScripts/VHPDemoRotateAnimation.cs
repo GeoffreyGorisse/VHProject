@@ -16,18 +16,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see<https://www.gnu.org/licenses/>.
 ********************************************************************/
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class VHPDemoRotateAnimation : MonoBehaviour
 {
-    public float speed = 1f;
-    public Vector3 rotationAxis = new Vector3 (0, 1, 0);
+    [SerializeField, Range(0, 100)] private float _speed = 50f;
+    [SerializeField] private Vector3 _rotationAxis = new Vector3 (0, 0, -1);
 
-    // Simple object rotation animation.
     void Update()
     {
-        transform.Rotate(rotationAxis, speed * Time.deltaTime);
+        transform.Rotate(_rotationAxis, _speed * Time.deltaTime);
     }
 }

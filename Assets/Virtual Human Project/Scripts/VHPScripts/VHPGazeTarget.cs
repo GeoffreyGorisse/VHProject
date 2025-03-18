@@ -317,7 +317,7 @@ public class VHPGazeTarget : MonoBehaviour
 
     #endregion
 
-    #region Randome gaze behavior
+    #region Random gaze behavior
 
     // Recursively handles the random gaze behavior.
     private IEnumerator RandomGazeBehavior(float updateDelay)

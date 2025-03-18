@@ -153,20 +153,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7992690321188194092a834a135e2f83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  femaleCharacter: {fileID: 537215799}
-  maleCharacter: {fileID: 8296172669421818824}
-  enableCharacterWalking: 1
   activeCharacter: 2
   targetState: 4
-  staticTargets:
+  _femaleCharacter: {fileID: 537215799}
+  _maleCharacter: {fileID: 8296172669421818824}
+  _enableCharacterWalking: 1
+  _staticTargets:
   - {fileID: 774427275673963673}
   - {fileID: 774427277020746890}
   - {fileID: 5541935052420335468}
   - {fileID: 774427275812858476}
   - {fileID: 774427276921319922}
-  dynamicTargets:
-  - {fileID: 8505699111016874423}
-  soundTargets:
+  _dynamicTargets:
+  - {fileID: 774427276149660068}
+  _soundTargets:
   - {fileID: 8763649282074242385}
 --- !u!4 &123292005
 Transform:
@@ -180,7 +180,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &127240618
 GameObject:
@@ -1154,7 +1154,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &373715826 stripped
 Transform:
@@ -1307,7 +1307,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1064397474 stripped
 Transform:
@@ -1360,7 +1360,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1234789773
 GameObject:
@@ -1643,7 +1643,7 @@ Transform:
   m_Children:
   - {fileID: 1297650284}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1516166867
 GameObject:
@@ -1691,7 +1691,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1642158846
 GameObject:
@@ -1723,7 +1723,7 @@ Transform:
   - {fileID: 5006512734821941837}
   - {fileID: 5006512735109243355}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1788892401
 GameObject:
@@ -1829,7 +1829,7 @@ Transform:
   - {fileID: 197406399}
   - {fileID: 1788892403}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2035111233
 GameObject:
@@ -2633,7 +2633,7 @@ GameObject:
   m_Component:
   - component: {fileID: 774427275673963678}
   m_Layer: 0
-  m_Name: Static_Target 1
+  m_Name: Static Target 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2843,7 +2843,7 @@ GameObject:
   m_Component:
   - component: {fileID: 774427275812858477}
   m_Layer: 0
-  m_Name: Static_Target 4
+  m_Name: Static Target 4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3039,7 +3039,7 @@ GameObject:
   m_Component:
   - component: {fileID: 774427276106085505}
   m_Layer: 0
-  m_Name: Props
+  m_Name: Targets
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3064,7 +3064,7 @@ Transform:
   - {fileID: 774427276149660069}
   - {fileID: 5748252630995607362}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &774427276113113925
 GameObject:
@@ -3137,7 +3137,7 @@ GameObject:
   m_Component:
   - component: {fileID: 774427276149660069}
   m_Layer: 0
-  m_Name: Mobile Target
+  m_Name: Dynamic Target
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3641,7 +3641,7 @@ GameObject:
   m_Component:
   - component: {fileID: 774427276921319923}
   m_Layer: 0
-  m_Name: Static_Target 5
+  m_Name: Static Target 5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3750,7 +3750,7 @@ GameObject:
   m_Component:
   - component: {fileID: 774427277020746885}
   m_Layer: 0
-  m_Name: Static_Target 2
+  m_Name: Static Target 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4471,7 +4471,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8841605423642064255}
   m_Layer: 0
-  m_Name: Static_Target 3
+  m_Name: Static Target 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4667,7 +4667,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5748252630995607362}
   m_Layer: 0
-  m_Name: Sound_Target
+  m_Name: Sound Target
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

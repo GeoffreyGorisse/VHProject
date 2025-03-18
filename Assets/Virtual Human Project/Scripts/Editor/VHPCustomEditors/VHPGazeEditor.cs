@@ -43,7 +43,7 @@ public class VHPGazeEditor : Editor
         if (_myVHTGaze.GazeBehaviorMode == VHPGaze.GazeBehavior.PROBABILISTIC) 
         {
             // Displays an object field for the gaze interest field prefab.
-            string interestFieldPrefabTooltip = "Add the Default Gaze Interest Field Prefab(Assets/Virtual Human Toolkit/Prefabs/).";
+            string interestFieldPrefabTooltip = "Add the Default Gaze Interest Field Prefab(Assets/Virtual Human Project/Prefabs/).";
             EditorGUILayout.PropertyField(_interestFieldPrefab, new GUIContent("Interest Field Prefab", interestFieldPrefabTooltip));
             //myVHTGaze.interestFieldPrefab = (GameObject)EditorGUILayout.ObjectField(new GUIContent("Interest Field Prefab", interestFieldPrefabTooltip), myVHTGaze.interestFieldPrefab, typeof(GameObject), false)
 

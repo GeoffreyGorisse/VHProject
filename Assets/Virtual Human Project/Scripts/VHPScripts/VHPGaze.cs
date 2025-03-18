@@ -78,7 +78,7 @@ public class VHPGaze : MonoBehaviour
     [SerializeField, Tooltip("Select the eye behavior model.")] private GazeBehavior _gazeBehavior;
     [SerializeField, HideInInspector] private GameObject _interestFieldPrefab;
     [SerializeField, HideInInspector] private bool _agentMode = false;
-    [SerializeField, Tooltip("Enable random micro saccades to the gaze direction.")] public bool _enableGazeMicroSaccades = true;
+    [SerializeField, Tooltip("Enable random micro saccades to the gaze direction.")] public bool _enableMicroSaccades = true;
     [SerializeField] private bool _enableBlinking = true;
 
     private VHPManager _VHPmanager;
@@ -331,7 +331,7 @@ public class VHPGaze : MonoBehaviour
     // Sets the direction of the gaze and optional micro-saccades.
     private void CalculateGazeDirection()
     {
-        if (_enableGazeMicroSaccades)
+        if (_enableMicroSaccades)
         {
             if (_currentMicroSaccadesWaitingTime >= Random.Range(1f, 3f) && !_islookingAtRandomPoint)
             {
