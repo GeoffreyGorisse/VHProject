@@ -33,7 +33,7 @@ public class VHPGazeInterestField : MonoBehaviour
     private void OnDisable()
     {
         GazeTargets.Clear();
-        StopAllCoroutines();
+        StopCoroutine(CheckForDisabledTargets());
     }
 
     private void OnTriggerEnter(Collider target)
@@ -49,18 +49,19 @@ public class VHPGazeInterestField : MonoBehaviour
     // Checks for disabled GameObjects in the interest field, as they do not call the trigger exit function.
     private IEnumerator CheckForDisabledTargets()
     {
-        if (GazeTargets.Any())
+        while (gameObject.activeSelf)
         {
-            // Inverted loop avoiding null reference exceptions when removing a disabled element from the list.
-            for (int i = GazeTargets.Count - 1; i > 0; i--)
+            if (GazeTargets.Any())
             {
-                if (!GazeTargets[i].gameObject.activeInHierarchy)
-                    GazeTargets.Remove(GazeTargets[i]);
+                // Inverted loop avoiding null reference exceptions when removing a disabled element from the list.
+                for (int i = GazeTargets.Count - 1; i >= 0; i--)
+                {
+                    if (!GazeTargets[i].gameObject.activeInHierarchy)
+                        GazeTargets.Remove(GazeTargets[i]);
+                }
             }
+
+            yield return new WaitForSeconds(1f);
         }
-
-        yield return new WaitForSeconds(1f);
-
-        StartCoroutine(CheckForDisabledTargets());
     }
 }

@@ -109,33 +109,34 @@ public class VHPGazeTarget : MonoBehaviour
     // Recursively handles the probabilistic gaze behavior.
     private IEnumerator ProbabilisticGazeBehavior()
     {
-        Vector3 aimedTargetPosition = Vector3.zero;
-
-        // Calls the target selection and target weighting functions when the interest field contains any targets.
-        if (VHPGazeInterestField && VHPGazeInterestField.GazeTargets.Any())
+        while (VHPGaze.GazeBehaviorMode == VHPGaze.GazeBehavior.PROBABILISTIC && gameObject.activeSelf)
         {
-            if (transform.parent != VHPGaze.transform)
-                transform.parent = VHPGaze.transform;
+            Vector3 aimedTargetPosition = Vector3.zero;
 
-            aimedTargetPosition = SelectTargetProbabilistically(PonderateTargets());
+            // Calls the target selection and target weighting functions when the interest field contains any targets.
+            if (VHPGazeInterestField && VHPGazeInterestField.GazeTargets.Any())
+            {
+                if (transform.parent != VHPGaze.transform)
+                    transform.parent = VHPGaze.transform;
+
+                aimedTargetPosition = SelectTargetProbabilistically(PonderateTargets());
+            }
+
+            // Sets a default gaze target position when the interest field contains no targets.
+            else
+            {
+                if (transform.parent != _initialParentTransform)
+                    transform.parent = _initialParentTransform;
+
+                aimedTargetPosition = VHPGaze.NeutralTargetPosition;
+            }
+
+            // Updates the target location if the parent GameObject is moving (head rotation, walking, etc.) to maintain the required position.
+            if (transform.position != aimedTargetPosition)
+                SmoothTargetTransition(aimedTargetPosition);
+
+            yield return null;
         }
-
-        // Sets a default gaze target position when the interest field contains no targets.
-        else
-        {
-            if (transform.parent != _initialParentTransform)
-                transform.parent = _initialParentTransform;
-
-            aimedTargetPosition = VHPGaze.NeutralTargetPosition;
-        }
-
-        // Updates the target location if the parent GameObject is moving (head rotation, walking, etc.) to maintain the required position.
-        if (transform.position != aimedTargetPosition)
-            SmoothTargetTransition(aimedTargetPosition);
-
-        yield return null;
-
-        StartCoroutine(ProbabilisticGazeBehavior());
     }
 
     // Ponders the list of targets in the interest field.
@@ -322,14 +323,15 @@ public class VHPGazeTarget : MonoBehaviour
     // Recursively handles the random gaze behavior.
     private IEnumerator RandomGazeBehavior(float updateDelay)
     {
-        float randomVariation = Random.Range(-0.2f, 0.2f);
-        float randomRecursiveDelay = Random.Range(3f, 5f);
+        while (VHPGaze.GazeBehaviorMode == VHPGaze.GazeBehavior.RANDOM && gameObject.activeSelf)
+        {
+            float randomVariation = Random.Range(-0.2f, 0.2f);
+            float randomRecursiveDelay = Random.Range(3f, 5f);
 
-        transform.position = VHPGaze.NeutralTargetPosition + new Vector3(randomVariation, randomVariation, 0);
+            transform.position = VHPGaze.NeutralTargetPosition + new Vector3(randomVariation, randomVariation, 0);
 
-        yield return new WaitForSeconds(updateDelay);
-
-        StartCoroutine(RandomGazeBehavior(randomRecursiveDelay));
+            yield return new WaitForSeconds(updateDelay);
+        }
     }
 
     #endregion
