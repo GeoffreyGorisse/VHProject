@@ -8,4 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Virtual Human Project/Scenes/VHProject.unity
     guid: ca8e3ee30e55469488a7b811731142d4
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 4a04e43ef238ac744968c62dbf38c69b,
+      type: 2}
