@@ -1,5 +1,5 @@
-# Virtual Human Project (VHP) - Version 0.2.0 (Beta)
-*18/03/2025*  
+# Virtual Human Project (VHP) - Version 0.2.1 (Beta)
+*05/10/2025*  
 *Contact: Geoffrey Gorisse, PhD, [geoffrey.gorisse@gmail.com](mailto:geoffrey.gorisse@gmail.com)*
 
 The Virtual Human Project (VHP) offers developers an optimized, scalable, and easy-to-integrate package to procedurally animate realistic virtual humans in Unity.
